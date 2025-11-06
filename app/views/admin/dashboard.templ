@@ -1,0 +1,68 @@
+package admin
+
+import "skillKonnect/app/views/layouts"
+
+templ Dashboard() {
+	@layouts.App() {
+		<div class="flex min-h-screen">
+			<!-- Sidebar -->
+			<aside class="w-64 bg-sidebar-light dark:bg-sidebar border-r border-gray-200 dark:border-gray-700 p-4">
+				<h1 class="text-xl font-bold text-brand mb-8">SkillKonnect Admin</h1>
+				<nav class="space-y-2">
+					<a href="/admin" class="flex items-center gap-2 text-gray-700 dark:text-gray-200 hover:text-brand font-medium">
+						<span class="material-symbols-outlined text-lg">dashboard</span>
+						Dashboard
+					</a>
+					<a href="/admin/users" class="flex items-center gap-2 text-gray-700 dark:text-gray-200 hover:text-brand font-medium">
+						<span class="material-symbols-outlined text-lg">group</span>
+						Users
+					</a>
+					<a href="/admin/workers" class="flex items-center gap-2 text-gray-700 dark:text-gray-200 hover:text-brand font-medium">
+						<span class="material-symbols-outlined text-lg">handyman</span>
+						Workers
+					</a>
+					<a href="/admin/payments" class="flex items-center gap-2 text-gray-700 dark:text-gray-200 hover:text-brand font-medium">
+						<span class="material-symbols-outlined text-lg">payments</span>
+						Payments
+					</a>
+				</nav>
+			</aside>
+			<!-- Main Content -->
+			<main class="flex-1 flex flex-col">
+				<!-- Top Navbar -->
+				<header class="flex justify-between items-center bg-sidebar-light dark:bg-sidebar px-6 py-3 border-b border-gray-200 dark:border-gray-700">
+					<div class="flex items-center gap-3">
+						<span class="material-symbols-outlined text-gray-500">search</span>
+						<input type="text" placeholder="Search..." class="rounded-md bg-background-light dark:bg-background-dark border-gray-300 dark:border-gray-700 text-sm p-2"/>
+					</div>
+					<div class="flex items-center gap-4">
+						<span class="material-symbols-outlined text-gray-500">notifications</span>
+						<div class="flex items-center gap-2">
+							<img src="https://i.pravatar.cc/30" class="w-8 h-8 rounded-full"/>
+							<span class="text-sm font-medium">Admin</span>
+						</div>
+					</div>
+				</header>
+				<!-- Dashboard Body -->
+				<section class="p-8 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+					<div class="bg-card dark:bg-sidebar p-4 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700">
+						<h2 class="text-sm text-gray-500">Total Users</h2>
+						<p class="text-2xl font-bold mt-2">1,204</p>
+					</div>
+					<div class="bg-card dark:bg-sidebar p-4 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700">
+						<h2 class="text-sm text-gray-500">Active Workers</h2>
+						<p class="text-2xl font-bold mt-2">853</p>
+					</div>
+					<div class="bg-card dark:bg-sidebar p-4 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700">
+						<h2 class="text-sm text-gray-500">New Bookings</h2>
+						<p class="text-2xl font-bold mt-2">43</p>
+					</div>
+					<div class="bg-card dark:bg-sidebar p-4 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700">
+						<h2 class="text-sm text-gray-500">Revenue</h2>
+						<p class="text-2xl font-bold mt-2">$4,230</p>
+					</div>
+				</section>
+			</main>
+		</div>
+	}
+}
