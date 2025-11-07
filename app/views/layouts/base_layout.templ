@@ -3,27 +3,51 @@ package layouts
 import "github.com/anthdm/superkit/view"
 
 var (
-	title = "superkit project"
+	title = "Superkit Project"
 )
 
 templ BaseLayout() {
 	<!DOCTYPE html>
-	<html lang="en">
+	<html
+		lang="en"
+		x-data="{ 
+			theme: localStorage.getItem('theme') || 'dark',
+			toggleTheme() {
+				this.theme = this.theme === 'dark' ? 'light' : 'dark';
+				localStorage.setItem('theme', this.theme);
+				document.documentElement.classList.toggle('dark', this.theme === 'dark');
+			}
+		}"
+		x-init="document.documentElement.classList.toggle('dark', theme === 'dark')"
+		class="scroll-smooth"
+	>
 		<head>
-			<title>{ title }</title>
-			<link rel="icon" type="image/x-icon" href="/public/favicon.ico"/>
 			<meta charset="UTF-8"/>
 			<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+			<title>{ title }</title>
+			<link rel="icon" type="image/x-icon" href="/public/favicon.ico"/>
+			<!-- Font -->
+			<link
+				href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap"
+				rel="stylesheet"
+			/>
+			<!-- Styles -->
 			<link rel="stylesheet" href={ view.Asset("styles.css") }/>
-			<script src={ view.Asset("index.js") }></script>
-			<!-- Alpine Plugins -->
-			<script defer src="https://cdn.jsdelivr.net/npm/@alpinejs/focus@3.x.x/dist/cdn.min.js"></script>
+			<!-- Scripts -->
+			<script src={ view.Asset("index.js") } defer></script>
+			<!-- Alpine.js -->
 			<script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
 			<!-- HTMX -->
-			<script src="https://unpkg.com/htmx.org@1.9.9" defer></script>
+			<script defer src="https://unpkg.com/htmx.org@1.9.9"></script>
 		</head>
-		<body x-data="{theme: 'dark'}" :class="theme" lang="en">
-			{ children... }
+		<body
+			class="font-sans transition-colors duration-300
+			bg-gray-50 text-gray-900
+			dark:bg-gradient-to-b dark:from-[#0f172a] dark:to-[#1e293b] dark:text-gray-100"
+		>
+			<div class="min-h-screen flex flex-col">
+				{ children... }
+			</div>
 		</body>
 	</html>
 }

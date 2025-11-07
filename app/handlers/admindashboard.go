@@ -1,7 +1,7 @@
 package handlers
 
 import (
-	"skillKonnect/app/views/admin"
+	"skillKonnect/app/views/components/admin"
 
 	"github.com/anthdm/superkit/kit"
 )

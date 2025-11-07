@@ -2,26 +2,28 @@
 @tailwind components;
 @tailwind utilities;
 
-/* fix for Alpine users. */
-[x-cloak] { 
-  display: none !important; 
+/* fix for Alpine users */
+[x-cloak] {
+  display: none !important;
 }
 
 @layer base {
+  /* Global base styles */
   * {
-		@apply border-border;
-	}
-	body {
-		@apply bg-background text-foreground;
-	}
+    @apply border-border;
+  }
 
-@layer base {
+  body {
+    @apply bg-background text-foreground transition-colors duration-300;
+  }
+
+  /* 🌗 Light mode (default) */
   :root {
     --background: 0 0% 100%;
     --foreground: 240 10% 3.9%;
     --card: 0 0% 100%;
     --card-foreground: 240 10% 3.9%;
-    --popover: 0 0% 100%;;
+    --popover: 0 0% 100%;
     --popover-foreground: 240 10% 3.9%;
     --primary: 240 5.9% 10%;
     --primary-foreground: 0 0% 98%;
@@ -39,6 +41,7 @@
     --radius: 0.5rem;
   }
 
+  /* 🌑 Dark mode overrides */
   .dark {
     --background: 240 10% 3.9%;
     --foreground: 0 0% 98%;
@@ -60,5 +63,4 @@
     --input: 240 3.7% 15.9%;
     --ring: 240 4.9% 83.9%;
   }
-}
 }

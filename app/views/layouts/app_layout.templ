@@ -4,9 +4,15 @@ import "skillKonnect/app/views/components"
 
 templ App() {
 	@BaseLayout() {
-		@components.Navigation()
-		<div class="max-w-7xl mx-auto">
-			{ children... }
+		<div class="flex min-h-screen">
+			<!-- Sidebar Navigation -->
+			@components.Navigation()
+			<!-- Main Content -->
+			<div class="flex-1 ml-64">
+				<div class="max-w-7xl mx-auto p-6">
+					{ children... }
+				</div>
+			</div>
 		</div>
 	}
 }

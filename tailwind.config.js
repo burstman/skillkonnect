@@ -3,7 +3,7 @@ import { fontFamily } from "tailwindcss/defaultTheme";
 module.exports = {
   content: ["./**/*.html", "./**/*.templ", "./**/*.go"],
   safelist: [],
-  darkMode: "class",
+  darkMode: "class", // Enables .dark mode toggling
   theme: {
     container: {
       center: true,
@@ -13,14 +13,12 @@ module.exports = {
       },
     },
     extend: {
-      // ✅ Keep your existing color system
       colors: {
         border: "hsl(var(--border) / <alpha-value>)",
         input: "hsl(var(--input) / <alpha-value>)",
         ring: "hsl(var(--ring) / <alpha-value>)",
         background: "hsl(var(--background) / <alpha-value>)",
         foreground: "hsl(var(--foreground) / <alpha-value>)",
-
         primary: {
           DEFAULT: "hsl(var(--primary) / <alpha-value>)",
           foreground: "hsl(var(--primary-foreground) / <alpha-value>)",
@@ -49,16 +47,8 @@ module.exports = {
           DEFAULT: "hsl(var(--card) / <alpha-value>)",
           foreground: "hsl(var(--card-foreground) / <alpha-value>)",
         },
-
-        // ✅ New colors from your stitched dashboard theme
-        brand: "#135bec",
-        "background-light": "#f6f6f8",
-        "background-dark": "#101622",
-        sidebar: "#151c2c",
-        "sidebar-light": "#fdfdff",
       },
 
-      // ✅ Keep your border radius system
       borderRadius: {
         lg: "var(--radius)",
         md: "calc(var(--radius) - 2px)",
@@ -67,9 +57,8 @@ module.exports = {
         full: "9999px",
       },
 
-      // ✅ Add Inter font for dashboard
       fontFamily: {
-        sans: [...fontFamily.sans],
+        sans: ["Inter", ...fontFamily.sans],
         display: ["Inter", ...fontFamily.sans],
       },
     },
