@@ -1,10 +1,10 @@
 package app
 
 import (
+	"log/slog"
 	"skillKonnect/app/handlers"
 	"skillKonnect/app/views/errors"
 	"skillKonnect/plugins/auth"
-	"log/slog"
 
 	"github.com/anthdm/superkit/kit"
 	"github.com/anthdm/superkit/kit/middleware"
@@ -34,7 +34,7 @@ func InitializeRoutes(router *chi.Mux) {
 	auth.InitializeRoutes(router)
 	authConfig := kit.AuthenticationConfig{
 		AuthFunc:    auth.AuthenticateUser,
-		RedirectURL: "/login",
+		RedirectURL: "/api/admin/login",
 	}
 
 	// Routes that "might" have an authenticated user
@@ -42,8 +42,8 @@ func InitializeRoutes(router *chi.Mux) {
 		app.Use(kit.WithAuthentication(authConfig, false)) // strict set to false
 
 		// Routes
-		app.Get("/", kit.Handler(handlers.HandleLandingIndex))
-		app.Get("/admin",kit.Handler(handlers.AdminDashboard))
+		// app.Get("/", kit.Handler(handlers.HandleLandingIndex))
+		// app.Get("/admin",kit.Handler(handlers.AdminDashboard))
 	})
 
 	// Authenticated routes
@@ -53,7 +53,12 @@ func InitializeRoutes(router *chi.Mux) {
 	// AuthenticationConfig.
 	router.Group(func(app chi.Router) {
 		app.Use(kit.WithAuthentication(authConfig, true)) // strict set to true
+		app.Use(auth.RequireAdmin)
 
+		app.Route("/api/admin", func(r chi.Router) {
+			r.Get("/dashboard", kit.Handler(handlers.AdminDashboard))
+			//r.Get("users",kit.Handler(handlers.AdminUsers))
+		})
 		// Routes
 		// app.Get("/path", kit.Handler(myHandler.HandleIndex))
 	})

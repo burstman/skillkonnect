@@ -39,27 +39,38 @@ templ Navigation() {
 			<!-- Navigation Links (hidden when collapsed) -->
 			<ul x-show="open" x-transition class="space-y-3 overflow-hidden">
 				<li>
-					<a href="/admin" class="flex items-center gap-2 text-foreground hover:text-primary font-medium transition-colors">
-						<span class="material-symbols-outlined text-lg">dashboard</span>
-						<span>Dashboard</span>
+					<a href="/api/admin/dashboard" class="flex items-center gap-2 text-foreground hover:text-primary font-medium transition-colors">
+						<span class="material-symbols-outlined text-lg">Dashboard</span>
 					</a>
 				</li>
 				<li>
-					<a href="/admin/users" class="flex items-center gap-2 text-foreground hover:text-primary font-medium transition-colors">
-						<span class="material-symbols-outlined text-lg">group</span>
-						<span>Users</span>
+					<a href="/api/admin/users" class="flex items-center gap-2 text-foreground hover:text-primary font-medium transition-colors">
+						<span class="material-symbols-outlined text-lg">User Management</span>
 					</a>
 				</li>
 				<li>
 					<a href="/admin/workers" class="flex items-center gap-2 text-foreground hover:text-primary font-medium transition-colors">
-						<span class="material-symbols-outlined text-lg">handyman</span>
-						<span>Workers</span>
+						<span class="material-symbols-outlined text-lg">Worker Verfication</span>
 					</a>
 				</li>
 				<li>
 					<a href="/admin/payments" class="flex items-center gap-2 text-foreground hover:text-primary font-medium transition-colors">
-						<span class="material-symbols-outlined text-lg">payments</span>
-						<span>Payments</span>
+						<span class="material-symbols-outlined text-lg">Skills & Categories</span>
+					</a>
+				</li>
+				<li>
+					<a href="/admin/payments" class="flex items-center gap-2 text-foreground hover:text-primary font-medium transition-colors">
+						<span class="material-symbols-outlined text-lg">Ratings</span>
+					</a>
+				</li>
+				<li>
+					<a href="/admin/payments" class="flex items-center gap-2 text-foreground hover:text-primary font-medium transition-colors">
+						<span class="material-symbols-outlined text-lg">Reports / Feedback</span>
+					</a>
+				</li>
+				<li>
+					<a href="/admin/payments" class="flex items-center gap-2 text-foreground hover:text-primary font-medium transition-colors">
+						<span class="material-symbols-outlined text-lg">System Settings</span>
 					</a>
 				</li>
 			</ul>

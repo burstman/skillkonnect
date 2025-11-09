@@ -1,8 +1,8 @@
 package auth
 
 import (
-	"skillKonnect/app/db"
 	"database/sql"
+	"skillKonnect/app/db"
 	"time"
 
 	"golang.org/x/crypto/bcrypt"
@@ -38,6 +38,7 @@ type User struct {
 	Email           string
 	FirstName       string
 	LastName        string
+	Role            string
 	PasswordHash    string
 	EmailVerifiedAt sql.NullTime
 	CreatedAt       time.Time

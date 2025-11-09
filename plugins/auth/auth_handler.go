@@ -1,10 +1,12 @@
 package auth
 
 import (
-	"skillKonnect/app/db"
+	"context"
 	"database/sql"
+	"log"
 	"net/http"
 	"os"
+	"skillKonnect/app/db"
 	"strconv"
 	"time"
 
@@ -51,6 +53,7 @@ func HandleLoginCreate(kit *kit.Kit) error {
 
 	err = bcrypt.CompareHashAndPassword([]byte(user.PasswordHash), []byte(values.Password))
 	if err != nil {
+		log.Printf("err in CompareHashAndPassword at HandleLoginCreate: %v", err)
 		errors.Add("credentials", "invalid credentials")
 		return kit.Render(LoginForm(values, errors))
 	}
@@ -148,6 +151,10 @@ func HandleEmailVerify(kit *kit.Kit) error {
 	return kit.Redirect(http.StatusSeeOther, "/login")
 }
 
+type contextKey string
+
+const userContextKey contextKey = "user"
+
 func AuthenticateUser(kit *kit.Kit) (kit.Auth, error) {
 	auth := Auth{}
 	sess := kit.GetSession(userSessionName)
@@ -159,14 +166,43 @@ func AuthenticateUser(kit *kit.Kit) (kit.Auth, error) {
 	var session Session
 	err := db.Get().
 		Preload("User").
-		Find(&session, "token = ? AND expires_at > ?", token, time.Now()).Error
+		Where("token = ? AND expires_at > ?", token, time.Now()).
+		First(&session).Error
 	if err != nil || session.ID == 0 {
 		return auth, nil
 	}
+
+	// Safely attach the user to the request context
+	ctx := context.WithValue(kit.Request.Context(), userContextKey, &session.User)
+	kit.Request = kit.Request.WithContext(ctx)
 
 	return Auth{
 		LoggedIn: true,
 		UserID:   session.User.ID,
 		Email:    session.User.Email,
 	}, nil
+}
+
+// Helper to easily retrieve the user from context anywhere
+func UserFromContext(ctx context.Context) (*User, bool) {
+	u, ok := ctx.Value(userContextKey).(*User)
+	return u, ok
+}
+
+func RequireAdmin(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		user, ok := UserFromContext(r.Context())
+		log.Println(user)
+		if !ok || user == nil {
+			http.Error(w, "unauthorized", http.StatusUnauthorized)
+			return
+		}
+
+		if user.Role != "admin" {
+			http.Error(w, "forbidden: admin access only", http.StatusForbidden)
+			return
+		}
+
+		next.ServeHTTP(w, r)
+	})
 }

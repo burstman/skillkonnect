@@ -8,20 +8,20 @@ import (
 func InitializeRoutes(router chi.Router) {
 	authConfig := kit.AuthenticationConfig{
 		AuthFunc:    AuthenticateUser,
-		RedirectURL: "/login",
+		RedirectURL: "/api/admin/login",
 	}
 
-	router.Get("/email/verify", kit.Handler(HandleEmailVerify))
-	router.Post("/resend-email-verification", kit.Handler(HandleResendVerificationCode))
+	//router.Get("/email/verify", kit.Handler(HandleEmailVerify))
+	//router.Post("/resend-email-verification", kit.Handler(HandleResendVerificationCode))
 
 	router.Group(func(auth chi.Router) {
 		auth.Use(kit.WithAuthentication(authConfig, false))
-		auth.Get("/login", kit.Handler(HandleLoginIndex))
-		auth.Post("/login", kit.Handler(HandleLoginCreate))
-		auth.Delete("/logout", kit.Handler(HandleLoginDelete))
+		auth.Get("/api/admin/login", kit.Handler(HandleLoginIndex))
+		auth.Post("/api/admin/login", kit.Handler(HandleLoginCreate))
+		auth.Delete("/api/admin/logout", kit.Handler(HandleLoginDelete))
 
-		auth.Get("/signup", kit.Handler(HandleSignupIndex))
-		auth.Post("/signup", kit.Handler(HandleSignupCreate))
+		//auth.Get("/signup", kit.Handler(HandleSignupIndex))
+		//auth.Post("/signup", kit.Handler(HandleSignupCreate))
 
 	})
 
