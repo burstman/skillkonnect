@@ -27,6 +27,7 @@ func InitializeRoutes(router chi.Router) {
 
 	router.Group(func(auth chi.Router) {
 		auth.Use(kit.WithAuthentication(authConfig, true))
+		auth.Get("/", kit.Handler(HandleLoginIndex))
 		auth.Get("/profile", kit.Handler(HandleProfileShow))
 		auth.Put("/profile", kit.Handler(HandleProfileUpdate))
 	})

@@ -151,10 +151,6 @@ func HandleEmailVerify(kit *kit.Kit) error {
 	return kit.Redirect(http.StatusSeeOther, "/login")
 }
 
-type contextKey string
-
-const userContextKey contextKey = "user"
-
 func AuthenticateUser(kit *kit.Kit) (kit.Auth, error) {
 	auth := Auth{}
 	sess := kit.GetSession(userSessionName)
@@ -172,10 +168,6 @@ func AuthenticateUser(kit *kit.Kit) (kit.Auth, error) {
 		return auth, nil
 	}
 
-	// Safely attach the user to the request context
-	ctx := context.WithValue(kit.Request.Context(), userContextKey, &session.User)
-	kit.Request = kit.Request.WithContext(ctx)
-
 	return Auth{
 		LoggedIn: true,
 		UserID:   session.User.ID,
@@ -183,26 +175,49 @@ func AuthenticateUser(kit *kit.Kit) (kit.Auth, error) {
 	}, nil
 }
 
-// Helper to easily retrieve the user from context anywhere
-func UserFromContext(ctx context.Context) (*User, bool) {
-	u, ok := ctx.Value(userContextKey).(*User)
-	return u, ok
-}
+type contextKey string
+
+const userAdminContextKey contextKey = "userAdmin"
 
 func RequireAdmin(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		user, ok := UserFromContext(r.Context())
-		log.Println(user)
-		if !ok || user == nil {
-			http.Error(w, "unauthorized", http.StatusUnauthorized)
+		kit := &kit.Kit{
+			Response: w,
+			Request:  r,
+		}
+
+		// Retrieve session token
+		sess := kit.GetSession(userSessionName)
+		token, ok := sess.Values["sessionToken"]
+		if !ok {
+			http.Error(w, "unauthorized: missing session", http.StatusUnauthorized)
 			return
 		}
 
+		// Load session and user
+		var session Session
+		err := db.Get().
+			Preload("User").
+			Where("token = ? AND expires_at > ?", token, time.Now()).
+			First(&session).Error
+		if err != nil || session.ID == 0 {
+			http.Error(w, "unauthorized: invalid or expired session", http.StatusUnauthorized)
+			return
+		}
+
+		user := session.User
+		log.Printf("Authenticated user: %s (%s)", user.Email, user.Role)
+
+		// Check admin role
 		if user.Role != "admin" {
 			http.Error(w, "forbidden: admin access only", http.StatusForbidden)
 			return
 		}
 
-		next.ServeHTTP(w, r)
+		// Attach user to context (optional, for later handlers)
+		ctx := r.Context()
+		ctx = context.WithValue(ctx, userAdminContextKey, &user)
+
+		next.ServeHTTP(w, r.WithContext(ctx))
 	})
 }

@@ -42,25 +42,48 @@ func InitializeRoutes(router *chi.Mux) {
 		app.Use(kit.WithAuthentication(authConfig, false)) // strict set to false
 
 		// Routes
-		// app.Get("/", kit.Handler(handlers.HandleLandingIndex))
+
 		// app.Get("/admin",kit.Handler(handlers.AdminDashboard))
-	})
 
-	// Authenticated routes
-	//
-	// Routes that "must" have an authenticated user or else they
-	// will be redirected to the configured redirectURL, set in the
-	// AuthenticationConfig.
-	router.Group(func(app chi.Router) {
-		app.Use(kit.WithAuthentication(authConfig, true)) // strict set to true
-		app.Use(auth.RequireAdmin)
-
+		// Authenticated routes
+		//
+		// Routes that "must" have an authenticated user or else they
+		// will be redirected to the configured redirectURL, set in the
+		// AuthenticationConfig.
 		app.Route("/api/admin", func(r chi.Router) {
+			// Dashboard
 			r.Get("/dashboard", kit.Handler(handlers.AdminDashboard))
-			//r.Get("users",kit.Handler(handlers.AdminUsers))
+
+			// Users management
+			r.Route("/users", func(r chi.Router) {
+				r.Get("/", kit.Handler(handlers.AdminListUsers))
+				//r.Get("/{id}", kit.Handler(handlers.AdminGetUser))
+				r.Put("/{id}/suspend", kit.Handler(handlers.AdminSuspendUser))
+				//r.Put("/{id}/activate", kit.Handler(handlers.AdminActivateUser))
+			})
+
+			// Skills and Categories
+			r.Route("/categories", func(r chi.Router) {
+				//r.Get("/", kit.Handler(handlers.AdminListCategories))
+				// r.Post("/", kit.Handler(handlers.AdminCreateCategory))
+				// r.Delete("/{id}", kit.Handler(handlers.AdminDeleteCategory))
+			})
+
+			r.Route("/skills", func(r chi.Router) {
+				// r.Get("/", kit.Handler(handlers.AdminListSkills))
+				// r.Post("/", kit.Handler(handlers.AdminCreateSkill))
+				// r.Delete("/{id}", kit.Handler(handlers.AdminDeleteSkill))
+			})
+
+			// Workers
+			r.Route("/workers", func(r chi.Router) {
+				// r.Get("/", kit.Handler(handlers.AdminListWorkers))
+				// r.Get("/{id}", kit.Handler(handlers.AdminGetWorker))
+				// r.Put("/{id}/approve", kit.Handler(handlers.AdminApproveWorker))
+				// r.Put("/{id}/ban", kit.Handler(handlers.AdminBanWorker))
+			})
 		})
-		// Routes
-		// app.Get("/path", kit.Handler(myHandler.HandleIndex))
+
 	})
 }
 

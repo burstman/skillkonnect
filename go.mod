@@ -10,6 +10,7 @@ toolchain go1.24.3
 require (
 	github.com/a-h/templ v0.3.960
 	github.com/anthdm/superkit v0.0.0-20240701091803-e7f8e0aad3e9
+	github.com/go-chi/chi v1.5.5
 	github.com/go-chi/chi/v5 v5.2.3
 	github.com/golang-jwt/jwt/v5 v5.3.0
 	github.com/google/uuid v1.6.0
