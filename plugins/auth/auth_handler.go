@@ -75,6 +75,7 @@ func HandleLoginCreate(kit *kit.Kit) error {
 		Token:     uuid.New().String(),
 		ExpiresAt: time.Now().Add(time.Hour * time.Duration(sessionExpiry)),
 	}
+	log.Printf("Creating session token %s with expiry %s", session.Token, session.ExpiresAt)
 	if err = db.Get().Create(&session).Error; err != nil {
 		return err
 	}

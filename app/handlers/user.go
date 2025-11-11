@@ -2,14 +2,13 @@ package handlers
 
 import (
 	"fmt"
-	"log"
 	"net/http"
 	"skillKonnect/app/db"
 	"skillKonnect/plugins/auth"
 	"strconv"
 
 	"github.com/anthdm/superkit/kit"
-	"github.com/go-chi/chi"
+	"github.com/go-chi/chi/v5"
 )
 
 func AdminListUsers(kit *kit.Kit) error {
@@ -23,41 +22,45 @@ func AdminListUsers(kit *kit.Kit) error {
 
 func AdminSuspendUser(kit *kit.Kit) error {
 	idStr := chi.URLParam(kit.Request, "id")
-	//log.Printf("Userid: %s", idStr)
 	id, err := strconv.Atoi(idStr)
 	if err != nil {
 		return fmt.Errorf("error conv id in AdminSuspendUser: %+v", err)
 	}
 
 	kit.Response.Header().Set("Content-Type", "application/json")
-	if err := db.Get().Model(&auth.User{}).Where("id = ?", id).Update("status", "suspended").Error; err != nil {
-		return kit.JSON(http.StatusInternalServerError, map[string]string{"error": "failed to suspend user"})
+	if err := db.Get().Model(&auth.User{}).Where("id = ?", id).Update("suspended", true).Error; err != nil {
+		return kit.JSON(http.StatusInternalServerError, map[string]string{"error": "failed to suspend user: " + err.Error()})
 	}
 
 	return kit.JSON(http.StatusOK, map[string]string{"message": "user suspended"})
 }
 
-func AdminGetUser(kit *kit.Kit) error {
-
-	ctx := chi.RouteContext(kit.Request.Context())
-	if ctx == nil {
-		log.Println("Route context is nil ⚠️")
-	} else {
-		log.Printf("Params keys: %+v", ctx.URLParams.Keys)
-		log.Printf("Params values: %+v", ctx.URLParams.Values)
+func AdminActivateUser(kit *kit.Kit) error {
+	idStr := chi.URLParam(kit.Request, "id")
+	id, err := strconv.Atoi(idStr)
+	if err != nil {
+		return fmt.Errorf("error conv id in AdminActivateUser: %+v", err)
 	}
 
-	idStr := chi.URLParam(kit.Request, "id")
-	log.Printf("Request path: %s", kit.Request.URL.Path)
+	kit.Response.Header().Set("Content-Type", "application/json")
+	if err := db.Get().Model(&auth.User{}).Where("id = ?", id).Update("suspended", false).Error; err != nil {
+		return kit.JSON(http.StatusInternalServerError, map[string]string{"error": "failed to activate user: " + err.Error()})
+	}
 
-	//idStr := chi.RouteContext(kit.Request.Context()).URLParam("id")
+	return kit.JSON(http.StatusOK, map[string]string{"message": "user activated"})
+}
+
+func AdminGetUser(kit *kit.Kit) error {
+
+	idStr := chi.URLParam(kit.Request, "id")
+	//log.Printf("Request path: %s", kit.Request.URL.Path)
 
 	if idStr == "" {
 		return kit.JSON(http.StatusBadRequest, map[string]string{
 			"error": "missing user ID",
 		})
 	}
-	log.Printf("userid: %s", idStr)
+	//log.Printf("userid: %s", idStr)
 	id, err := strconv.Atoi(idStr)
 	if err != nil {
 		return fmt.Errorf("error conv id in AdminSuspendUser: %+v", err)

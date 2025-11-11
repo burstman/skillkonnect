@@ -39,6 +39,7 @@ type User struct {
 	FirstName       string
 	LastName        string
 	Role            string
+	Suspended       bool
 	PasswordHash    string
 	EmailVerifiedAt sql.NullTime
 	CreatedAt       time.Time

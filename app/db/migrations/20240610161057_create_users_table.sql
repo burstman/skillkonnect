@@ -6,6 +6,7 @@ create table if not exists users(
 	first_name text not null,
 	last_name text not null,
 	role text not null,
+	suspended boolean not null default false,
 	email_verified_at datetime,
 	created_at datetime not null,
 	updated_at datetime not null,
