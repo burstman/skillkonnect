@@ -1,7 +1,6 @@
 package auth
 
 import (
-	"context"
 	"database/sql"
 	"log"
 	"net/http"
@@ -175,10 +174,6 @@ func AuthenticateUser(kit *kit.Kit) (kit.Auth, error) {
 	}, nil
 }
 
-type contextKey string
-
-const userAdminContextKey contextKey = "userAdmin"
-
 func RequireAdmin(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		kit := &kit.Kit{
@@ -214,10 +209,6 @@ func RequireAdmin(next http.Handler) http.Handler {
 			return
 		}
 
-		// Attach user to context (optional, for later handlers)
-		ctx := r.Context()
-		ctx = context.WithValue(ctx, userAdminContextKey, &user)
-
-		next.ServeHTTP(w, r.WithContext(ctx))
+		next.ServeHTTP(w, r)
 	})
 }

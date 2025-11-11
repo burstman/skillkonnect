@@ -40,7 +40,7 @@ func InitializeRoutes(router *chi.Mux) {
 	// Routes that "might" have an authenticated user
 	router.Group(func(app chi.Router) {
 		app.Use(kit.WithAuthentication(authConfig, false)) // strict set to false
-
+		//app.Use(auth.RequireAdmin)
 		// Routes
 
 		// app.Get("/admin",kit.Handler(handlers.AdminDashboard))
@@ -57,8 +57,8 @@ func InitializeRoutes(router *chi.Mux) {
 			// Users management
 			r.Route("/users", func(r chi.Router) {
 				r.Get("/", kit.Handler(handlers.AdminListUsers))
-				//r.Get("/{id}", kit.Handler(handlers.AdminGetUser))
-				r.Put("/{id}/suspend", kit.Handler(handlers.AdminSuspendUser))
+				r.Get("/{id:[0-9]+}", kit.Handler(handlers.AdminGetUser))
+				//r.Put("/{id}/suspend", kit.Handler(handlers.AdminSuspendUser))
 				//r.Put("/{id}/activate", kit.Handler(handlers.AdminActivateUser))
 			})
 
