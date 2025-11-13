@@ -34,16 +34,16 @@ func (auth Auth) Check() bool {
 
 type User struct {
 	gorm.Model
-
 	Email           string
 	FirstName       string
 	LastName        string
-	Role            string
-	Suspended       bool
+	Role            string `gorm:"default:'client'"` // "admin", "worker", "client"
 	PasswordHash    string
 	EmailVerifiedAt sql.NullTime
-	CreatedAt       time.Time
-	UpdatedAt       time.Time
+	Suspended       bool    `gorm:"default:false"`
+	Approved        bool    `gorm:"default:false"`
+	Bio             string  `gorm:"type:text"`
+	Rating          float64 `gorm:"default:0"`
 }
 
 func createUserFromFormValues(values SignupFormValues) (User, error) {

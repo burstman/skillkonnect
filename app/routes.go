@@ -64,15 +64,15 @@ func InitializeRoutes(router *chi.Mux) {
 
 			// Skills and Categories
 			r.Route("/categories", func(r chi.Router) {
-				//r.Get("/", kit.Handler(handlers.AdminListCategories))
-				// r.Post("/", kit.Handler(handlers.AdminCreateCategory))
-				// r.Delete("/{id}", kit.Handler(handlers.AdminDeleteCategory))
+				r.Get("/", kit.Handler(handlers.AdminListCategories))
+				r.Post("/", kit.Handler(handlers.AdminCreateCategory))
+				r.Delete("/{id}", kit.Handler(handlers.AdminDeleteCategory))
 			})
 
 			r.Route("/skills", func(r chi.Router) {
-				// r.Get("/", kit.Handler(handlers.AdminListSkills))
-				// r.Post("/", kit.Handler(handlers.AdminCreateSkill))
-				// r.Delete("/{id}", kit.Handler(handlers.AdminDeleteSkill))
+				r.Get("/", kit.Handler(handlers.AdminListSkills))
+				r.Post("/", kit.Handler(handlers.AdminCreateSkill))
+				r.Delete("/{id}", kit.Handler(handlers.AdminDeleteSkill))
 			})
 
 			// Workers

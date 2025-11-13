@@ -1,11 +1,11 @@
 package handlers
 
 import (
-	"skillKonnect/app/types"
+	"skillKonnect/app/models"
 
 	"github.com/anthdm/superkit/kit"
 )
 
 func HandleAuthentication(kit *kit.Kit) (kit.Auth, error) {
-	return types.AuthUser{}, nil
+	return models.AuthUser{}, nil
 }

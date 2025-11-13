@@ -1,4 +1,4 @@
-package types
+package models
 
 // AuthUser represents an user that might be authenticated.
 type AuthUser struct {
