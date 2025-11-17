@@ -26,7 +26,14 @@ func main() {
 	}
 
 	kit.UseErrorHandler(app.ErrorHandler)
-	router.HandleFunc("/*", kit.Handler(app.NotFoundHandler))
+	// Try to set Chi's NotFound handler on the concrete mux if available.
+	// This avoids registering a wildcard route which can conflict with
+	// other route registrations and cause method-not-allowed (405) errors.
+	// Use the router's NotFound setter (method) to register the handler.
+	// Using a wildcard route with HandleFunc can interfere with method
+	// resolution and produce 405 responses, so prefer the explicit NotFound
+	// setter when available.
+	router.NotFound(kit.Handler(app.NotFoundHandler))
 
 	app.InitializeRoutes(router)
 	app.RegisterEvents()
