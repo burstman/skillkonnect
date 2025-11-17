@@ -32,25 +32,24 @@ func InitializeRoutes(router *chi.Mux) {
 	//      RedirectURL: "/login",
 	//  }
 	auth.InitializeRoutes(router)
-	authConfig := kit.AuthenticationConfig{
-		AuthFunc:    auth.AuthenticateUser,
+	webcfg := kit.AuthenticationConfig{
+		AuthFunc:    auth.WebUIAuthFunc,
 		RedirectURL: "/api/admin/login",
 	}
 
+	// apiCfg := kit.AuthenticationConfig{
+	// 	AuthFunc:    auth.APIAuthFunc,
+	// 	RedirectURL: "", // not used for JSON
+	// }
+
 	// Routes that "might" have an authenticated user
 	router.Group(func(app chi.Router) {
-		app.Use(kit.WithAuthentication(authConfig, true)) // strict set to false
-		//app.Use(auth.RequireAdmin)
-		// Routes
-
-		// app.Get("/admin",kit.Handler(handlers.AdminDashboard))
-
-		// Authenticated routes
-		//
+		app.Use(kit.WithAuthentication(webcfg, true)) // strict set to false
+		app.Use(auth.RequireAdmin)
 		// Routes that "must" have an authenticated user or else they
 		// will be redirected to the configured redirectURL, set in the
 		// AuthenticationConfig.
-		app.Route("/api/admin", func(r chi.Router) {
+		app.Route("/web/admin", func(r chi.Router) {
 			// Dashboard
 			r.Get("/dashboard", kit.Handler(handlers.AdminDashboard))
 
@@ -75,16 +74,17 @@ func InitializeRoutes(router *chi.Mux) {
 				r.Delete("/{id}", kit.Handler(handlers.AdminDeleteSkill))
 			})
 
-			// Workers
-			r.Route("/workers", func(r chi.Router) {
-				// r.Get("/", kit.Handler(handlers.AdminListWorkers))
-				// r.Get("/{id}", kit.Handler(handlers.AdminGetWorker))
-				// r.Put("/{id}/approve", kit.Handler(handlers.AdminApproveWorker))
-				// r.Put("/{id}/ban", kit.Handler(handlers.AdminBanWorker))
-			})
+			// // Workers
+			// r.Route("/workers", func(r chi.Router) {
+			// 	r.Get("/", kit.Handler(handlers.AdminListWorkers))
+			// 	r.Get("/{id}", kit.Handler(handlers.AdminGetWorker))
+			// 	r.Put("/{id}/approve", kit.Handler(handlers.AdminApproveWorker))
+			// 	r.Put("/{id}/ban", kit.Handler(handlers.AdminBanWorker))
+			// })
 		})
 
 	})
+
 }
 
 // NotFoundHandler that will be called when the requested path could

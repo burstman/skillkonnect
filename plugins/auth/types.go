@@ -1,8 +1,8 @@
 package auth
 
 import (
-	"database/sql"
 	"skillKonnect/app/db"
+	"skillKonnect/app/models"
 	"time"
 
 	"golang.org/x/crypto/bcrypt"
@@ -18,40 +18,26 @@ const (
 // UserWithVerificationToken is a struct that will be sent over the
 // auth.signup event. It holds the User struct and the Verification token string.
 type UserWithVerificationToken struct {
-	User  User
+	User  models.User
 	Token string
 }
 
-type Auth struct {
-	UserID   uint
-	Email    string
-	LoggedIn bool
-}
+// type Auth struct {
+// 	UserID   uint
+// 	Email    string
+// 	LoggedIn bool
+// }
 
-func (auth Auth) Check() bool {
-	return auth.LoggedIn
-}
+// func (auth Auth) Check() bool {
+// 	return auth.LoggedIn
+// }
 
-type User struct {
-	gorm.Model
-	Email           string
-	FirstName       string
-	LastName        string
-	Role            string `gorm:"default:'client'"` // "admin", "worker", "client"
-	PasswordHash    string
-	EmailVerifiedAt sql.NullTime
-	Suspended       bool    `gorm:"default:false"`
-	Approved        bool    `gorm:"default:false"`
-	Bio             string  `gorm:"type:text"`
-	Rating          float64 `gorm:"default:0"`
-}
-
-func createUserFromFormValues(values SignupFormValues) (User, error) {
+func createUserFromFormValues(values SignupFormValues) (models.User, error) {
 	hash, err := bcrypt.GenerateFromPassword([]byte(values.Password), bcrypt.DefaultCost)
 	if err != nil {
-		return User{}, err
+		return models.User{}, err
 	}
-	user := User{
+	user := models.User{
 		Email:        values.Email,
 		FirstName:    values.FirstName,
 		LastName:     values.LastName,
@@ -70,5 +56,5 @@ type Session struct {
 	UserAgent string
 	ExpiresAt time.Time
 	CreatedAt time.Time
-	User      User
+	User      models.User
 }

@@ -7,5 +7,5 @@ import (
 )
 
 func HandleAuthentication(kit *kit.Kit) (kit.Auth, error) {
-	return models.AuthUser{}, nil
+	return models.AuthPayload{}, nil
 }

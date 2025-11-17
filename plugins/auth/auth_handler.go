@@ -6,7 +6,9 @@ import (
 	"net/http"
 	"os"
 	"skillKonnect/app/db"
+	"skillKonnect/app/models"
 	"strconv"
+	"strings"
 	"time"
 
 	"github.com/anthdm/superkit/kit"
@@ -41,7 +43,7 @@ func HandleLoginCreate(kit *kit.Kit) error {
 		return kit.Render(LoginForm(values, errors))
 	}
 
-	var user User
+	var user models.User
 	err := db.Get().Find(&user, "email = ?", values.Email).Error
 	if err != nil {
 		if err == gorm.ErrRecordNotFound {
@@ -131,7 +133,7 @@ func HandleEmailVerify(kit *kit.Kit) error {
 		return kit.Render(EmailVerificationError("Email verification token expired"))
 	}
 
-	var user User
+	var user models.User
 	err = db.Get().First(&user, userID).Error
 	if err != nil {
 		return err
@@ -151,8 +153,8 @@ func HandleEmailVerify(kit *kit.Kit) error {
 	return kit.Redirect(http.StatusSeeOther, "/login")
 }
 
-func AuthenticateUser(kit *kit.Kit) (kit.Auth, error) {
-	auth := Auth{}
+func AuthenticateUser(kit *kit.Kit) (models.ExtendedAuth, error) {
+	auth := models.AuthPayload{}
 	sess := kit.GetSession(userSessionName)
 	token, ok := sess.Values["sessionToken"]
 	if !ok {
@@ -168,10 +170,51 @@ func AuthenticateUser(kit *kit.Kit) (kit.Auth, error) {
 		return auth, nil
 	}
 
-	return Auth{
-		LoggedIn: true,
-		UserID:   session.User.ID,
-		Email:    session.User.Email,
+	return models.AuthPayload{
+		Authenticated: true,
+		User:          &session.User,
+		Token:         session.Token,
+	}, nil
+}
+
+func WebUIAuthFunc(kit *kit.Kit) (kit.Auth, error) {
+	auth, err := AuthenticateUser(kit)
+	if err != nil {
+		return &models.AuthPayload{Authenticated: false}, nil
+	}
+
+	if !auth.Check() {
+		return &models.AuthPayload{Authenticated: false}, nil
+	}
+
+	return &models.AuthPayload{
+		Authenticated: true,
+		User:          auth.GetUser(), // if your AuthenticateUser returns a user
+		Token:         "",
+	}, nil
+}
+
+func APIAuthFunc(kit *kit.Kit) (kit.Auth, error) {
+	header := kit.Request.Header.Get("Authorization")
+	if header == "" || !strings.HasPrefix(header, "Bearer ") {
+		return &models.AuthPayload{Authenticated: false}, nil
+	}
+
+	token := strings.TrimPrefix(header, "Bearer ")
+
+	var session Session
+	if err := db.Get().Where("token = ? AND expires_at > ?", token, time.Now()).
+		First(&session).Error; err != nil {
+		return &models.AuthPayload{Authenticated: false}, nil
+	}
+
+	var user models.User
+	db.Get().First(&user, session.UserID)
+
+	return &models.AuthPayload{
+		Authenticated: true,
+		User:          &user,
+		Token:         token,
 	}, nil
 }
 

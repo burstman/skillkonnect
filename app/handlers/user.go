@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"net/http"
 	"skillKonnect/app/db"
-	"skillKonnect/plugins/auth"
+	"skillKonnect/app/models"
 	"strconv"
 
 	"github.com/anthdm/superkit/kit"
@@ -12,7 +12,7 @@ import (
 )
 
 func AdminListUsers(kit *kit.Kit) error {
-	var users []auth.User
+	var users []models.User
 	if err := db.Get().Find(&users).Error; err != nil {
 		return kit.JSON(http.StatusInternalServerError, map[string]string{"error": "failed to fetch users"})
 	}
@@ -28,7 +28,7 @@ func AdminSuspendUser(kit *kit.Kit) error {
 	}
 
 	kit.Response.Header().Set("Content-Type", "application/json")
-	if err := db.Get().Model(&auth.User{}).Where("id = ?", id).Update("suspended", true).Error; err != nil {
+	if err := db.Get().Model(&models.User{}).Where("id = ?", id).Update("suspended", true).Error; err != nil {
 		return kit.JSON(http.StatusInternalServerError, map[string]string{"error": "failed to suspend user: " + err.Error()})
 	}
 
@@ -43,7 +43,7 @@ func AdminActivateUser(kit *kit.Kit) error {
 	}
 
 	kit.Response.Header().Set("Content-Type", "application/json")
-	if err := db.Get().Model(&auth.User{}).Where("id = ?", id).Update("suspended", false).Error; err != nil {
+	if err := db.Get().Model(&models.User{}).Where("id = ?", id).Update("suspended", false).Error; err != nil {
 		return kit.JSON(http.StatusInternalServerError, map[string]string{"error": "failed to activate user: " + err.Error()})
 	}
 
@@ -67,7 +67,7 @@ func AdminGetUser(kit *kit.Kit) error {
 	}
 
 	kit.Response.Header().Set("Content-Type", "application/json")
-	var user auth.User
+	var user models.User
 	if err := db.Get().First(&user, id).Error; err != nil {
 		return kit.JSON(http.StatusNotFound, map[string]string{
 			"error": "user not found",

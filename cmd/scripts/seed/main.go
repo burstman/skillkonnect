@@ -4,7 +4,7 @@ import (
 	"database/sql"
 	"fmt"
 	"skillKonnect/app/db"
-	"skillKonnect/plugins/auth"
+	"skillKonnect/app/models"
 	"time"
 
 	"golang.org/x/crypto/bcrypt"
@@ -30,7 +30,7 @@ func main() {
 	defer sqlDB.Close()
 
 	// Seed users
-	users := []auth.User{
+	users := []models.User{
 		{
 			Email:        "admin@example.com",
 			PasswordHash: string(hashpassword), // replace with bcrypt hash in real app
@@ -40,8 +40,6 @@ func main() {
 			Suspended:    false,
 			EmailVerifiedAt: sql.NullTime{Time: time.Now(),
 				Valid: true},
-			CreatedAt: time.Now(),
-			UpdatedAt: time.Now(),
 		},
 		{
 			Email:        "john@example.com",
@@ -50,8 +48,6 @@ func main() {
 			LastName:     "Doe",
 			Role:         "user",
 			Suspended:    false,
-			CreatedAt:    time.Now(),
-			UpdatedAt:    time.Now(),
 		},
 		{
 			Email:        "jane@example.com",
@@ -60,14 +56,12 @@ func main() {
 			LastName:     "Smith",
 			Role:         "user",
 			Suspended:    true,
-			CreatedAt:    time.Now(),
-			UpdatedAt:    time.Now(),
 		},
 	}
 
 	for _, u := range users {
 		// Use FirstOrCreate to avoid duplicates
-		var existing auth.User
+		var existing models.User
 		result := dbConn.Where("email = ?", u.Email).First(&existing)
 		if result.Error == nil {
 			fmt.Printf("User %s already exists, skipping\n", u.Email)

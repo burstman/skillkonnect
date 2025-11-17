@@ -1,10 +1,11 @@
 package auth
 
 import (
-	"skillKonnect/app/db"
 	"fmt"
 	"net/http"
 	"os"
+	"skillKonnect/app/db"
+	"skillKonnect/app/models"
 	"strconv"
 	"time"
 
@@ -62,7 +63,7 @@ func HandleResendVerificationCode(kit *kit.Kit) error {
 		return err
 	}
 
-	var user User
+	var user models.User
 	if err = db.Get().First(&user, id).Error; err != nil {
 		return kit.Text(http.StatusOK, "An unexpected error occured")
 	}

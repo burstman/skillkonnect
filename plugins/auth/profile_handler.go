@@ -1,8 +1,9 @@
 package auth
 
 import (
-	"skillKonnect/app/db"
 	"fmt"
+	"skillKonnect/app/db"
+	"skillKonnect/app/models"
 
 	"github.com/anthdm/superkit/kit"
 	v "github.com/anthdm/superkit/validate"
@@ -22,10 +23,10 @@ type ProfileFormValues struct {
 }
 
 func HandleProfileShow(kit *kit.Kit) error {
-	auth := kit.Auth().(Auth)
+	auth := kit.Auth().(models.AuthPayload)
 
-	var user User
-	if err := db.Get().First(&user, auth.UserID).Error; err != nil {
+	var user models.User
+	if err := db.Get().First(&user, auth.User.ID).Error; err != nil {
 		return err
 	}
 
@@ -46,13 +47,13 @@ func HandleProfileUpdate(kit *kit.Kit) error {
 		return kit.Render(ProfileForm(values, errors))
 	}
 
-	auth := kit.Auth().(Auth)
-	if auth.UserID != values.ID {
+	auth := kit.Auth().(models.AuthPayload)
+	if auth.User.ID != values.ID {
 		return fmt.Errorf("unauthorized request for profile %d", values.ID)
 	}
-	err := db.Get().Model(&User{}).
-		Where("id = ?", auth.UserID).
-		Updates(&User{
+	err := db.Get().Model(&models.User{}).
+		Where("id = ?", auth.User.ID).
+		Updates(&models.User{
 			FirstName: values.FirstName,
 			LastName:  values.LastName,
 		}).Error
@@ -61,7 +62,7 @@ func HandleProfileUpdate(kit *kit.Kit) error {
 	}
 
 	values.Success = "Profile successfully updated!"
-	values.Email = auth.Email
+	values.Email = auth.User.Email
 
 	return kit.Render(ProfileForm(values, v.Errors{}))
 }
