@@ -1,7 +1,6 @@
 package auth
 
 import (
-	"net/http"
 	"skillKonnect/app/handlers"
 
 	"github.com/anthdm/superkit/kit"
@@ -42,13 +41,9 @@ func InitializeRoutes(router chi.Router) {
 		RedirectURL: "", // no HTML redirects for API
 	}
 
-	// Public API login (NO AUTH)
-
-	//router.Post("/api/admin/login", kit.Handler(HandleApiLoginCreate))
-
-	router.Post("/api/admin/login", func(w http.ResponseWriter, r *http.Request) {
-		w.Header().Set("Content-Type", "application/json")
-		w.Write([]byte(`{"status":"ok"}`))
+	// Public API login (NO AUTH) - in its own group
+	router.Group(func(r chi.Router) {
+		r.Post("/api/admin/login", kit.Handler(HandleApiLoginCreate))
 	})
 
 	// Protected API routes
