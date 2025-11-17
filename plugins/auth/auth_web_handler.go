@@ -72,7 +72,7 @@ func HandleLoginCreate(kit *kit.Kit) error {
 	if err != nil {
 		sessionExpiry = 48
 	}
-	session := Session{
+	session := models.Session{
 		UserID:    user.ID,
 		Token:     uuid.New().String(),
 		ExpiresAt: time.Now().Add(time.Hour * time.Duration(sessionExpiry)),
@@ -96,7 +96,7 @@ func HandleLoginDelete(kit *kit.Kit) error {
 		sess.Values = map[any]any{}
 		sess.Save(kit.Request, kit.Response)
 	}()
-	err := db.Get().Delete(&Session{}, "token = ?", sess.Values["sessionToken"]).Error
+	err := db.Get().Delete(&models.Session{}, "token = ?", sess.Values["sessionToken"]).Error
 	if err != nil {
 		return err
 	}
@@ -161,7 +161,7 @@ func AuthenticateUser(kit *kit.Kit) (models.ExtendedAuth, error) {
 		return auth, nil
 	}
 
-	var session Session
+	var session models.Session
 	err := db.Get().
 		Preload("User").
 		Where("token = ? AND expires_at > ?", token, time.Now()).
@@ -202,7 +202,7 @@ func APIAuthFunc(kit *kit.Kit) (kit.Auth, error) {
 
 	token := strings.TrimPrefix(header, "Bearer ")
 
-	var session Session
+	var session models.Session
 	if err := db.Get().Where("token = ? AND expires_at > ?", token, time.Now()).
 		First(&session).Error; err != nil {
 		return &models.AuthPayload{Authenticated: false}, nil
@@ -234,7 +234,7 @@ func RequireAdmin(next http.Handler) http.Handler {
 		}
 
 		// Load session and user
-		var session Session
+		var session models.Session
 		err := db.Get().
 			Preload("User").
 			Where("token = ? AND expires_at > ?", token, time.Now()).

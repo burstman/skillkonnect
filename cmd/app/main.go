@@ -1,12 +1,12 @@
 package main
 
 import (
-	"skillKonnect/app"
-	"skillKonnect/public"
 	"fmt"
 	"log"
 	"net/http"
 	"os"
+	"skillKonnect/app"
+	"skillKonnect/public"
 
 	"github.com/anthdm/superkit/kit"
 	"github.com/go-chi/chi/v5"

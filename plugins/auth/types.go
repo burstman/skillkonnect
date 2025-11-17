@@ -3,10 +3,8 @@ package auth
 import (
 	"skillKonnect/app/db"
 	"skillKonnect/app/models"
-	"time"
 
 	"golang.org/x/crypto/bcrypt"
-	"gorm.io/gorm"
 )
 
 // Event name constants
@@ -45,16 +43,4 @@ func createUserFromFormValues(values SignupFormValues) (models.User, error) {
 	}
 	result := db.Get().Create(&user)
 	return user, result.Error
-}
-
-type Session struct {
-	gorm.Model
-
-	UserID    uint
-	Token     string
-	IPAddress string
-	UserAgent string
-	ExpiresAt time.Time
-	CreatedAt time.Time
-	User      models.User
 }

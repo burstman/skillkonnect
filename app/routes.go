@@ -34,7 +34,7 @@ func InitializeRoutes(router *chi.Mux) {
 	auth.InitializeRoutes(router)
 	webcfg := kit.AuthenticationConfig{
 		AuthFunc:    auth.WebUIAuthFunc,
-		RedirectURL: "/api/admin/login",
+		RedirectURL: "/web/admin/login",
 	}
 
 	// apiCfg := kit.AuthenticationConfig{

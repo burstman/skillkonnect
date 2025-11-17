@@ -7,9 +7,9 @@ create table if not exists users(
 	last_name text not null,
 	role text not null,
 	suspended boolean not null default false,
-	approved BOOLEAN DEFAULT FALSE;
-	bio TEXT;
-	rating REAL DEFAULT 0;
+	approved BOOLEAN DEFAULT FALSE,
+	bio TEXT,
+	rating REAL DEFAULT 0,
 	email_verified_at datetime,
 	created_at datetime not null,
 	updated_at datetime not null,
