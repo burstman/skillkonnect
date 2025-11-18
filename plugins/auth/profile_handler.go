@@ -1,7 +1,7 @@
 package auth
 
 import (
-	"fmt"
+	"net/http"
 	"skillKonnect/app/db"
 	"skillKonnect/app/models"
 
@@ -23,12 +23,14 @@ type ProfileFormValues struct {
 }
 
 func HandleProfileShow(kit *kit.Kit) error {
-	auth := kit.Auth().(models.AuthPayload)
 
-	var user models.User
-	if err := db.Get().First(&user, auth.User.ID).Error; err != nil {
-		return err
+	// Read authentication from unified middleware
+	payload, ok := kit.Request.Context().Value(AuthContextKey{}).(AuthPayload)
+	if !ok || !payload.Authenticated || payload.User == nil {
+		return kit.Redirect(http.StatusSeeOther, "/web/admin/login")
 	}
+
+	user := payload.User
 
 	formValues := ProfileFormValues{
 		ID:        user.ID,
@@ -47,12 +49,12 @@ func HandleProfileUpdate(kit *kit.Kit) error {
 		return kit.Render(ProfileForm(values, errors))
 	}
 
-	auth := kit.Auth().(models.AuthPayload)
-	if auth.User.ID != values.ID {
-		return fmt.Errorf("unauthorized request for profile %d", values.ID)
+	payload, ok := kit.Request.Context().Value(AuthContextKey{}).(AuthPayload)
+	if !ok || !payload.Authenticated || payload.User == nil {
+		return kit.Redirect(http.StatusSeeOther, "/web/admin/login")
 	}
 	err := db.Get().Model(&models.User{}).
-		Where("id = ?", auth.User.ID).
+		Where("id = ?", payload.User.ID).
 		Updates(&models.User{
 			FirstName: values.FirstName,
 			LastName:  values.LastName,
@@ -62,7 +64,7 @@ func HandleProfileUpdate(kit *kit.Kit) error {
 	}
 
 	values.Success = "Profile successfully updated!"
-	values.Email = auth.User.Email
+	values.Email = payload.User.Email
 
 	return kit.Render(ProfileForm(values, v.Errors{}))
 }

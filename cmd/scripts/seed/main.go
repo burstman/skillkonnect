@@ -46,7 +46,7 @@ func main() {
 			PasswordHash: string(hashpassword),
 			FirstName:    "John",
 			LastName:     "Doe",
-			Role:         "user",
+			Role:         "worker",
 			Suspended:    false,
 		},
 		{
@@ -54,7 +54,7 @@ func main() {
 			PasswordHash: string(hashpassword),
 			FirstName:    "Jane",
 			LastName:     "Smith",
-			Role:         "user",
+			Role:         "client",
 			Suspended:    true,
 		},
 	}

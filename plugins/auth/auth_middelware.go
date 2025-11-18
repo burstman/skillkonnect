@@ -3,13 +3,13 @@ package auth
 import (
 	"context"
 	"net/http"
-	"skillKonnect/app/models"
 	"strings"
+
+	"skillKonnect/app/models"
 
 	"github.com/anthdm/superkit/kit"
 )
 
-// Auth object for context
 type AuthContextKey struct{}
 
 type AuthPayload struct {
@@ -17,7 +17,7 @@ type AuthPayload struct {
 	User          *models.User
 }
 
-// Middleware config
+// Unified config for API + Web UI
 type UnifiedAuthConfig struct {
 	WebAuthFunc func(*kit.Kit) (*models.User, error)
 	APIAuthFunc func(*kit.Kit) (*models.User, error)
@@ -28,20 +28,19 @@ type UnifiedAuthConfig struct {
 func isJSONRequest(r *http.Request) bool {
 	accept := r.Header.Get("Accept")
 	ct := r.Header.Get("Content-Type")
+	auth := r.Header.Get("Authorization")
 
 	return strings.Contains(accept, "application/json") ||
 		strings.Contains(ct, "application/json") ||
-		strings.HasPrefix(r.Header.Get("Authorization"), "Bearer")
+		strings.HasPrefix(auth, "Bearer ")
 }
 
 func WithUnifiedAuth(cfg UnifiedAuthConfig, strict bool) func(http.Handler) http.Handler {
 	return func(next http.Handler) http.Handler {
+
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 
-			kit := &kit.Kit{
-				Response: w,
-				Request:  r,
-			}
+			kit := &kit.Kit{Response: w, Request: r}
 
 			isAPI := isJSONRequest(r)
 
@@ -49,32 +48,32 @@ func WithUnifiedAuth(cfg UnifiedAuthConfig, strict bool) func(http.Handler) http
 			var err error
 
 			if isAPI {
-				// JSON API → Bearer Token
 				user, err = cfg.APIAuthFunc(kit)
 			} else {
-				// Web UI → Cookie session
 				user, err = cfg.WebAuthFunc(kit)
 			}
 
-			authenticated := (err == nil && user != nil)
+			auth := (err == nil && user != nil)
 
-			if strict && !authenticated {
+			// Strict mode → block unauthorized requests
+			if strict && !auth {
+
 				if isAPI {
-					// JSON API → return 401
-					kit.JSON(http.StatusUnauthorized, map[string]string{
+					// JSON API → return 401 JSON
+					_ = kit.JSON(http.StatusUnauthorized, map[string]string{
 						"error": "unauthorized",
 					})
 					return
 				}
 
-				// Web UI → redirect to login
+				// WEB → redirect to login
 				kit.Redirect(http.StatusSeeOther, cfg.LoginURL)
 				return
 			}
 
-			// Inject auth into context
+			// Inject into context
 			ctx := context.WithValue(r.Context(), AuthContextKey{}, AuthPayload{
-				Authenticated: authenticated,
+				Authenticated: auth,
 				User:          user,
 			})
 

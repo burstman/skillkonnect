@@ -218,7 +218,7 @@ func APIAuthFunc(kit *kit.Kit) (kit.Auth, error) {
 	}, nil
 }
 
-func RequireAdmin(next http.Handler) http.Handler {
+func RequireWebAdmin(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		kit := &kit.Kit{
 			Response: w,
@@ -250,6 +250,24 @@ func RequireAdmin(next http.Handler) http.Handler {
 		// Check admin role
 		if user.Role != "admin" {
 			http.Error(w, "forbidden: admin access only", http.StatusForbidden)
+			return
+		}
+
+		next.ServeHTTP(w, r)
+	})
+}
+
+func RequireAdminAPI(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+
+		payload, ok := r.Context().Value(AuthContextKey{}).(AuthPayload)
+		if !ok || !payload.Authenticated {
+			http.Error(w, "unauthorized", http.StatusUnauthorized)
+			return
+		}
+
+		if payload.User.Role != "admin" {
+			http.Error(w, "forbidden: admin only", http.StatusForbidden)
 			return
 		}
 

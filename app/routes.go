@@ -45,7 +45,7 @@ func InitializeRoutes(router *chi.Mux) {
 	// Routes that "might" have an authenticated user
 	router.Group(func(app chi.Router) {
 		app.Use(kit.WithAuthentication(webcfg, true)) // strict set to false
-		app.Use(auth.RequireAdmin)
+		app.Use(auth.RequireWebAdmin)
 		// Routes that "must" have an authenticated user or else they
 		// will be redirected to the configured redirectURL, set in the
 		// AuthenticationConfig.
