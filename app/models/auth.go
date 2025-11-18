@@ -14,7 +14,7 @@ type AuthPayload struct {
 // Check should return true if the user is authenticated.
 // See handlers/auth.go.
 func (user AuthPayload) Check() bool {
-	return user.User.ID > 0 && user.Authenticated
+	return user.User != nil && user.User.ID > 0 && user.Authenticated
 }
 
 func (a AuthPayload) GetUser() *User {

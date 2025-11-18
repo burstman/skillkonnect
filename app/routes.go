@@ -55,7 +55,7 @@ func InitializeRoutes(router *chi.Mux) {
 
 			// Users management
 			r.Route("/users", func(r chi.Router) {
-				r.Get("/", kit.Handler(handlers.AdminListUsers))
+				r.Get("/", kit.Handler(handlers.WebAdminListUsers))
 				r.Get("/{id}", kit.Handler(handlers.AdminGetUser))
 				r.Put("/{id}/suspend", kit.Handler(handlers.AdminSuspendUser))
 				r.Put("/{id}/activate", kit.Handler(handlers.AdminActivateUser))

@@ -11,7 +11,16 @@ import (
 	"github.com/go-chi/chi/v5"
 )
 
-func AdminListUsers(kit *kit.Kit) error {
+func WebAdminListUsers(kit *kit.Kit) error {
+	var users []models.User
+	if err := db.Get().Find(&users).Error; err != nil {
+		return kit.JSON(http.StatusInternalServerError, map[string]string{"error": "failed to fetch users"})
+	}
+	kit.Response.Header().Set("Content-Type", "application/json")
+	return kit.JSON(http.StatusOK, users)
+}
+
+func ApiAdminListUsers(kit *kit.Kit) error {
 	var users []models.User
 	if err := db.Get().Find(&users).Error; err != nil {
 		return kit.JSON(http.StatusInternalServerError, map[string]string{"error": "failed to fetch users"})
