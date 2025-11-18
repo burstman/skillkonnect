@@ -81,6 +81,12 @@ func InitializeRoutes(router chi.Router) {
 		r.Post("/api/admin/login", kit.Handler(HandleApiLoginCreate))
 	})
 
+	// Protected API routes that require authentication (any user)
+	router.Group(func(api chi.Router) {
+		api.Use(WithUnifiedAuth(apiAuthConfig, true))
+		api.Get("/api/auth/me", kit.Handler(HandleApiAuthMe))
+	})
+
 	// Protected API routes
 	router.Group(func(api chi.Router) {
 		api.Use(WithUnifiedAuth(apiAuthConfig, true))
@@ -97,6 +103,8 @@ func InitializeRoutes(router chi.Router) {
 				r.Get("/{id}", kit.Handler(handlers.AdminGetUser))
 				r.Put("/{id}/suspend", kit.Handler(handlers.AdminSuspendUser))
 				r.Put("/{id}/activate", kit.Handler(handlers.AdminActivateUser))
+				r.Put("/{id}", kit.Handler(handlers.AdminUpdateUser))
+				r.Delete("/{id}", kit.Handler(handlers.AdminDeleteUser))
 			})
 
 			// CATEGORIES
@@ -104,13 +112,20 @@ func InitializeRoutes(router chi.Router) {
 				r.Get("/", kit.Handler(handlers.AdminListCategories))
 				r.Post("/", kit.Handler(handlers.AdminCreateCategory))
 				r.Delete("/{id}", kit.Handler(handlers.AdminDeleteCategory))
+				r.Put("/{id}", kit.Handler(handlers.AdminUpdateCategory))
 			})
 
 			// SKILLS
 			r.Route("/skills", func(r chi.Router) {
 				r.Get("/", kit.Handler(handlers.AdminListSkills))
 				r.Post("/", kit.Handler(handlers.AdminCreateSkill))
+				r.Put("/{id}", kit.Handler(handlers.AdminUpdateSkill))
 				r.Delete("/{id}", kit.Handler(handlers.AdminDeleteSkill))
+			})
+
+			r.Route("/status", func(r chi.Router) {
+				r.Get("/dashboard", kit.Handler(handlers.AdminDashboardStats))
+
 			})
 
 		})

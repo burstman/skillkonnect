@@ -89,3 +89,21 @@ func HandleApiLoginDelete(kit *kit.Kit) error {
 		"message": "logged out",
 	})
 }
+
+// HandleApiAuthMe returns information about the currently authenticated user.
+func HandleApiAuthMe(kit *kit.Kit) error {
+	// Read authentication from unified middleware
+	payload, ok := kit.Request.Context().Value(AuthContextKey{}).(AuthPayload)
+	if !ok || !payload.Authenticated || payload.User == nil {
+		return kit.JSON(http.StatusUnauthorized, map[string]string{"error": "unauthorized"})
+	}
+
+	user := payload.User
+
+	return kit.JSON(http.StatusOK, map[string]any{
+		"id":         user.ID,
+		"email":      user.Email,
+		"role":       user.Role,
+		"first_name": user.FirstName,
+	})
+}

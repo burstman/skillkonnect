@@ -6,11 +6,13 @@ import (
 	"net/http"
 	"os"
 	"skillKonnect/app"
+	_ "skillKonnect/docs"
 	"skillKonnect/public"
 
 	"github.com/anthdm/superkit/kit"
 	"github.com/go-chi/chi/v5"
 	"github.com/joho/godotenv"
+	httpSwagger "github.com/swaggo/http-swagger"
 )
 
 func main() {
@@ -37,11 +39,16 @@ func main() {
 
 	app.InitializeRoutes(router)
 	app.RegisterEvents()
+	// Serve Swagger UI only in development
+	if kit.IsDevelopment() {
+		router.Get("/swagger/*", httpSwagger.WrapHandler)
+	}
 
 	listenAddr := os.Getenv("HTTP_LISTEN_ADDR")
 	// In development link the full Templ proxy url.
 	url := "http://localhost:7331"
 	if kit.IsProduction() {
+		router.Get("/swagger/*", httpSwagger.WrapHandler)
 		url = fmt.Sprintf("http://localhost%s", listenAddr)
 	}
 

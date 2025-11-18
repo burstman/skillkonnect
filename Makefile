@@ -56,7 +56,12 @@ sync_assets:
 
 # start the application in development
 dev:
+	@make swag
 	@make -j5 templ server watch-assets watch-esbuild sync_assets
+
+# generate swagger docs
+swag:
+	@go run github.com/swaggo/swag/cmd/swag@v1.8.1 init -g cmd/app/main.go
 
 # build the application for production. This will compile your app
 # to a single binary with all its assets embedded.
