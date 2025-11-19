@@ -9,6 +9,7 @@ import (
 	"github.com/anthdm/superkit/kit"
 	"github.com/anthdm/superkit/kit/middleware"
 	"github.com/go-chi/chi/v5"
+	"github.com/go-chi/cors"
 
 	chimiddleware "github.com/go-chi/chi/v5/middleware"
 )
@@ -18,6 +19,15 @@ func InitializeMiddleware(router *chi.Mux) {
 	router.Use(chimiddleware.Logger)
 	router.Use(chimiddleware.Recoverer)
 	router.Use(middleware.WithRequest)
+	router.Use(cors.Handler(cors.Options{
+		AllowedOrigins:   []string{"*"}, // allow all — good for development
+		AllowedMethods:   []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"},
+		AllowedHeaders:   []string{"Accept", "Authorization", "Content-Type"},
+		ExposedHeaders:   []string{"Link"},
+		AllowCredentials: true,
+		MaxAge:           300, // 5 minutes
+	}))
+
 }
 
 // Define your routes in here
