@@ -29,6 +29,77 @@ func main() {
 	}
 	defer sqlDB.Close()
 
+	// Seed categories for skilled trades
+	categories := []models.Category{
+		{Name: "plumbing", Description: "Plumbing and pipe repair"},
+		{Name: "electrical", Description: "Electrical installation and repair"},
+		{Name: "carpentry", Description: "Carpentry and woodwork"},
+		{Name: "hvac", Description: "Heating, ventilation, and air conditioning"},
+		{Name: "painting", Description: "Painting and wall finishing"},
+		{Name: "appliance-repair", Description: "Home appliance repair"},
+	}
+	for _, c := range categories {
+		var existing models.Category
+		result := dbConn.Where("name = ?", c.Name).First(&existing)
+		if result.Error == nil {
+			fmt.Printf("Category %s already exists, skipping\n", c.Name)
+			continue
+		}
+		if err := dbConn.Create(&c).Error; err != nil {
+			fmt.Printf("Failed to insert category %s: %v\n", c.Name, err)
+		} else {
+			fmt.Printf("Inserted category: %s\n", c.Name)
+		}
+	}
+
+	// Seed skills for each category
+	var plumbingCat, electricalCat, carpentryCat, hvacCat, paintingCat, applianceCat models.Category
+	dbConn.Where("name = ?", "plumbing").First(&plumbingCat)
+	dbConn.Where("name = ?", "electrical").First(&electricalCat)
+	dbConn.Where("name = ?", "carpentry").First(&carpentryCat)
+	dbConn.Where("name = ?", "hvac").First(&hvacCat)
+	dbConn.Where("name = ?", "painting").First(&paintingCat)
+	dbConn.Where("name = ?", "appliance-repair").First(&applianceCat)
+
+	skills := []models.Skill{
+		{Name: "pipe-installation", Description: "Install and repair pipes", CategoryID: plumbingCat.ID},
+		{Name: "drain-cleaning", Description: "Clean and unclog drains", CategoryID: plumbingCat.ID},
+		{Name: "leak-detection", Description: "Detect and fix leaks", CategoryID: plumbingCat.ID},
+
+		{Name: "wiring", Description: "Electrical wiring and outlets", CategoryID: electricalCat.ID},
+		{Name: "lighting-installation", Description: "Install lighting fixtures", CategoryID: electricalCat.ID},
+		{Name: "circuit-breaker-repair", Description: "Repair circuit breakers", CategoryID: electricalCat.ID},
+
+		{Name: "furniture-assembly", Description: "Assemble furniture", CategoryID: carpentryCat.ID},
+		{Name: "door-installation", Description: "Install and repair doors", CategoryID: carpentryCat.ID},
+		{Name: "cabinet-making", Description: "Build cabinets and shelves", CategoryID: carpentryCat.ID},
+
+		{Name: "ac-installation", Description: "Install air conditioning units", CategoryID: hvacCat.ID},
+		{Name: "heater-repair", Description: "Repair heating systems", CategoryID: hvacCat.ID},
+		{Name: "ventilation-cleaning", Description: "Clean ventilation ducts", CategoryID: hvacCat.ID},
+
+		{Name: "wall-painting", Description: "Paint interior and exterior walls", CategoryID: paintingCat.ID},
+		{Name: "wall-prep", Description: "Prepare walls for painting", CategoryID: paintingCat.ID},
+		{Name: "trim-painting", Description: "Paint trim and moldings", CategoryID: paintingCat.ID},
+
+		{Name: "washer-repair", Description: "Repair washing machines", CategoryID: applianceCat.ID},
+		{Name: "fridge-repair", Description: "Repair refrigerators", CategoryID: applianceCat.ID},
+		{Name: "oven-repair", Description: "Repair ovens and stoves", CategoryID: applianceCat.ID},
+	}
+	for _, s := range skills {
+		var existing models.Skill
+		result := dbConn.Where("name = ?", s.Name).First(&existing)
+		if result.Error == nil {
+			fmt.Printf("Skill %s already exists, skipping\n", s.Name)
+			continue
+		}
+		if err := dbConn.Create(&s).Error; err != nil {
+			fmt.Printf("Failed to insert skill %s: %v\n", s.Name, err)
+		} else {
+			fmt.Printf("Inserted skill: %s\n", s.Name)
+		}
+	}
+
 	// Seed users
 	users := []models.User{
 		{

@@ -16,7 +16,31 @@ const docTemplate = `{
     "host": "{{.Host}}",
     "basePath": "{{.BasePath}}",
     "paths": {
-        "/api/admin/categories": {
+        "/api/admin/stats/dashboard": {
+            "get": {
+                "description": "Get admin dashboard statistics",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "admin",
+                    "dashboard"
+                ],
+                "summary": "Dashboard stats",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "integer"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/admin/categories": {
             "get": {
                 "description": "Get all categories",
                 "produces": [
@@ -91,7 +115,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/api/admin/categories/{id}": {
+        "/api/v1/admin/categories/{id}": {
             "put": {
                 "description": "Update a category by ID",
                 "consumes": [
@@ -182,7 +206,102 @@ const docTemplate = `{
                 }
             }
         },
-        "/api/admin/skills": {
+        "/api/v1/admin/login": {
+            "post": {
+                "description": "Login with email and password; returns token and user information",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "auth",
+                    "public"
+                ],
+                "summary": "Admin login",
+                "parameters": [
+                    {
+                        "description": "Login payload",
+                        "name": "credentials",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "type": "object"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/admin/logout": {
+            "delete": {
+                "description": "Invalidate the current API token (Bearer)",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "auth"
+                ],
+                "summary": "Logout",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Bearer token",
+                        "name": "Authorization",
+                        "in": "header",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/admin/skills": {
             "get": {
                 "description": "Get all skills",
                 "produces": [
@@ -257,7 +376,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/api/admin/skills/{id}": {
+        "/api/v1/admin/skills/{id}": {
             "put": {
                 "description": "Update a skill by ID",
                 "consumes": [
@@ -348,31 +467,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/api/admin/stats/dashboard": {
-            "get": {
-                "description": "Get admin dashboard statistics",
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "admin",
-                    "dashboard"
-                ],
-                "summary": "Dashboard stats",
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "type": "object",
-                            "additionalProperties": {
-                                "type": "integer"
-                            }
-                        }
-                    }
-                }
-            }
-        },
-        "/api/admin/users": {
+        "/api/v1/admin/users": {
             "get": {
                 "description": "Get all users",
                 "produces": [
@@ -383,6 +478,15 @@ const docTemplate = `{
                     "users"
                 ],
                 "summary": "List users",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Bearer token",
+                        "name": "Authorization",
+                        "in": "header",
+                        "required": true
+                    }
+                ],
                 "responses": {
                     "200": {
                         "description": "OK",
@@ -405,7 +509,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/api/admin/users/{id}": {
+        "/api/v1/admin/users/{id}": {
             "get": {
                 "description": "Get a user by ID",
                 "produces": [
@@ -422,6 +526,13 @@ const docTemplate = `{
                         "description": "User ID",
                         "name": "id",
                         "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Bearer token",
+                        "name": "Authorization",
+                        "in": "header",
                         "required": true
                     }
                 ],
@@ -472,6 +583,13 @@ const docTemplate = `{
                         "schema": {
                             "type": "object"
                         }
+                    },
+                    {
+                        "type": "string",
+                        "description": "Bearer token",
+                        "name": "Authorization",
+                        "in": "header",
+                        "required": true
                     }
                 ],
                 "responses": {
@@ -518,6 +636,13 @@ const docTemplate = `{
                         "name": "id",
                         "in": "path",
                         "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Bearer token",
+                        "name": "Authorization",
+                        "in": "header",
+                        "required": true
                     }
                 ],
                 "responses": {
@@ -542,7 +667,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/api/admin/users/{id}/activate": {
+        "/api/v1/admin/users/{id}/activate": {
             "put": {
                 "description": "Activate a user by ID",
                 "produces": [
@@ -559,6 +684,13 @@ const docTemplate = `{
                         "description": "User ID",
                         "name": "id",
                         "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Bearer token",
+                        "name": "Authorization",
+                        "in": "header",
                         "required": true
                     }
                 ],
@@ -584,7 +716,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/api/admin/users/{id}/suspend": {
+        "/api/v1/admin/users/{id}/suspend": {
             "put": {
                 "description": "Suspend a user by ID",
                 "produces": [
@@ -602,11 +734,120 @@ const docTemplate = `{
                         "name": "id",
                         "in": "path",
                         "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Bearer token",
+                        "name": "Authorization",
+                        "in": "header",
+                        "required": true
                     }
                 ],
                 "responses": {
                     "200": {
                         "description": "OK",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/auth/me": {
+            "get": {
+                "description": "Returns information about the authenticated user",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "auth"
+                ],
+                "summary": "Current user",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Bearer token",
+                        "name": "Authorization",
+                        "in": "header",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/models.UserSwagger"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/upload": {
+            "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Upload a file to the server. Allowed types: .png, .jpg, .jpeg, .webp, .pdf, .docx",
+                "consumes": [
+                    "multipart/form-data"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Admin"
+                ],
+                "summary": "Upload a file",
+                "parameters": [
+                    {
+                        "type": "file",
+                        "description": "File to upload",
+                        "name": "file",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Bearer token in format 'Bearer \u003ctoken\u003e'",
+                        "name": "Authorization",
+                        "in": "header"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
                         "schema": {
                             "type": "object",
                             "additionalProperties": {
@@ -723,6 +964,13 @@ const docTemplate = `{
                     "type": "string"
                 }
             }
+        }
+    },
+    "securityDefinitions": {
+        "BearerAuth": {
+            "type": "apiKey",
+            "name": "Authorization",
+            "in": "header"
         }
     }
 }`

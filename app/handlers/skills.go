@@ -18,7 +18,7 @@ import (
 // @Produce json
 // @Success 200 {array} models.SkillSwagger
 // @Failure 500 {object} map[string]string
-// @Router /api/admin/skills [get]
+// @Router /api/v1/admin/skills [get]
 func AdminListSkills(kit *kit.Kit) error {
 	var skills []models.Skill
 
@@ -39,7 +39,7 @@ func AdminListSkills(kit *kit.Kit) error {
 // @Param skill body object true "Skill payload"
 // @Success 201 {object} models.SkillSwagger
 // @Failure 400 {object} map[string]string
-// @Router /api/admin/skills [post]
+// @Router /api/v1/admin/skills [post]
 func AdminCreateSkill(kit *kit.Kit) error {
 	var input struct {
 		Name        string `json:"name"`
@@ -81,7 +81,7 @@ func AdminCreateSkill(kit *kit.Kit) error {
 // @Produce json
 // @Success 200 {object} map[string]string
 // @Failure 400 {object} map[string]string
-// @Router /api/admin/skills/{id} [delete]
+// @Router /api/v1/admin/skills/{id} [delete]
 func AdminDeleteSkill(kit *kit.Kit) error {
 	idStr := chi.URLParam(kit.Request, "id")
 	id, err := strconv.Atoi(idStr)
@@ -111,7 +111,7 @@ func AdminDeleteSkill(kit *kit.Kit) error {
 // @Param skill body object true "Skill update payload"
 // @Success 200 {object} models.SkillSwagger
 // @Failure 400 {object} map[string]string
-// @Router /api/admin/skills/{id} [put]
+// @Router /api/v1/admin/skills/{id} [put]
 func AdminUpdateSkill(kit *kit.Kit) error {
 	idStr := chi.URLParam(kit.Request, "id")
 	id, err := strconv.Atoi(idStr)

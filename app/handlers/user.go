@@ -27,7 +27,8 @@ func WebAdminListUsers(kit *kit.Kit) error {
 // @Produce json
 // @Success 200 {array} models.UserSwagger
 // @Failure 500 {object} map[string]string
-// @Router /api/admin/users [get]
+// @Router /api/v1/admin/users [get]
+// @Param Authorization header string true "Bearer token"
 func ApiAdminListUsers(kit *kit.Kit) error {
 	var users []models.User
 	if err := db.Get().Find(&users).Error; err != nil {
@@ -44,7 +45,8 @@ func ApiAdminListUsers(kit *kit.Kit) error {
 // @Produce json
 // @Success 200 {object} map[string]string
 // @Failure 500 {object} map[string]string
-// @Router /api/admin/users/{id}/suspend [put]
+// @Router /api/v1/admin/users/{id}/suspend [put]
+// @Param Authorization header string true "Bearer token"
 func AdminSuspendUser(kit *kit.Kit) error {
 	idStr := chi.URLParam(kit.Request, "id")
 	id, err := strconv.Atoi(idStr)
@@ -67,7 +69,8 @@ func AdminSuspendUser(kit *kit.Kit) error {
 // @Produce json
 // @Success 200 {object} map[string]string
 // @Failure 500 {object} map[string]string
-// @Router /api/admin/users/{id}/activate [put]
+// @Router /api/v1/admin/users/{id}/activate [put]
+// @Param Authorization header string true "Bearer token"
 func AdminActivateUser(kit *kit.Kit) error {
 	idStr := chi.URLParam(kit.Request, "id")
 	id, err := strconv.Atoi(idStr)
@@ -90,7 +93,8 @@ func AdminActivateUser(kit *kit.Kit) error {
 // @Produce json
 // @Success 200 {object} models.UserSwagger
 // @Failure 404 {object} map[string]string
-// @Router /api/admin/users/{id} [get]
+// @Router /api/v1/admin/users/{id} [get]
+// @Param Authorization header string true "Bearer token"
 func AdminGetUser(kit *kit.Kit) error {
 
 	idStr := chi.URLParam(kit.Request, "id")
@@ -129,7 +133,8 @@ func AdminGetUser(kit *kit.Kit) error {
 // @Success 200 {object} models.UserSwagger
 // @Failure 400 {object} map[string]string
 // @Failure 404 {object} map[string]string
-// @Router /api/admin/users/{id} [put]
+// @Router /api/v1/admin/users/{id} [put]
+// @Param Authorization header string true "Bearer token"
 func AdminUpdateUser(kit *kit.Kit) error {
 	idStr := chi.URLParam(kit.Request, "id")
 	id, err := strconv.Atoi(idStr)
@@ -184,7 +189,8 @@ func AdminUpdateUser(kit *kit.Kit) error {
 // @Produce json
 // @Success 200 {object} map[string]string
 // @Failure 404 {object} map[string]string
-// @Router /api/admin/users/{id} [delete]
+// @Router /api/v1/admin/users/{id} [delete]
+// @Param Authorization header string true "Bearer token"
 func AdminDeleteUser(kit *kit.Kit) error {
 	idStr := chi.URLParam(kit.Request, "id")
 	id, err := strconv.Atoi(idStr)

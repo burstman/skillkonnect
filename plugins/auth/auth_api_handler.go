@@ -14,6 +14,16 @@ import (
 	"golang.org/x/crypto/bcrypt"
 )
 
+// @Summary Admin login
+// @Description Login with email and password; returns token and user information
+// @Tags auth, public
+// @Accept json
+// @Produce json
+// @Param credentials body object true "Login payload"
+// @Success 200 {object} map[string]any
+// @Failure 400 {object} map[string]string
+// @Failure 401 {object} map[string]string
+// @Router /api/v1/admin/login [post]
 func HandleApiLoginCreate(kit *kit.Kit) error {
 	var req struct {
 		Email    string `json:"email"`
@@ -69,6 +79,14 @@ func HandleApiLoginCreate(kit *kit.Kit) error {
 	})
 }
 
+// @Summary Logout
+// @Description Invalidate the current API token (Bearer)
+// @Tags auth
+// @Param Authorization header string true "Bearer token"
+// @Produce json
+// @Success 200 {object} map[string]string
+// @Failure 401 {object} map[string]string
+// @Router /api/v1/admin/logout [delete]
 func HandleApiLoginDelete(kit *kit.Kit) error {
 	token := kit.Request.Header.Get("Authorization")
 	if token == "" || !strings.HasPrefix(token, "Bearer ") {
@@ -90,6 +108,14 @@ func HandleApiLoginDelete(kit *kit.Kit) error {
 	})
 }
 
+// @Summary Current user
+// @Description Returns information about the authenticated user
+// @Tags auth
+// @Param Authorization header string true "Bearer token"
+// @Produce json
+// @Success 200 {object} models.UserSwagger
+// @Failure 401 {object} map[string]string
+// @Router /api/v1/auth/me [get]
 // HandleApiAuthMe returns information about the currently authenticated user.
 func HandleApiAuthMe(kit *kit.Kit) error {
 	// Read authentication from unified middleware

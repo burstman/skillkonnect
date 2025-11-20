@@ -65,7 +65,23 @@ definitions:
 info:
   contact: {}
 paths:
-  /api/admin/categories:
+  /api/admin/stats/dashboard:
+    get:
+      description: Get admin dashboard statistics
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties:
+              type: integer
+            type: object
+      summary: Dashboard stats
+      tags:
+      - admin
+      - dashboard
+  /api/v1/admin/categories:
     get:
       description: Get all categories
       produces:
@@ -115,7 +131,7 @@ paths:
       tags:
       - admin
       - categories
-  /api/admin/categories/{id}:
+  /api/v1/admin/categories/{id}:
     delete:
       description: Delete a category by ID
       parameters:
@@ -176,7 +192,70 @@ paths:
       tags:
       - admin
       - categories
-  /api/admin/skills:
+  /api/v1/admin/login:
+    post:
+      consumes:
+      - application/json
+      description: Login with email and password; returns token and user information
+      parameters:
+      - description: Login payload
+        in: body
+        name: credentials
+        required: true
+        schema:
+          type: object
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "401":
+          description: Unauthorized
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Admin login
+      tags:
+      - auth
+      - public
+  /api/v1/admin/logout:
+    delete:
+      description: Invalidate the current API token (Bearer)
+      parameters:
+      - description: Bearer token
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "401":
+          description: Unauthorized
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Logout
+      tags:
+      - auth
+  /api/v1/admin/skills:
     get:
       description: Get all skills
       produces:
@@ -226,7 +305,7 @@ paths:
       tags:
       - admin
       - skills
-  /api/admin/skills/{id}:
+  /api/v1/admin/skills/{id}:
     delete:
       description: Delete a skill by ID
       parameters:
@@ -287,25 +366,15 @@ paths:
       tags:
       - admin
       - skills
-  /api/admin/stats/dashboard:
-    get:
-      description: Get admin dashboard statistics
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            additionalProperties:
-              type: integer
-            type: object
-      summary: Dashboard stats
-      tags:
-      - admin
-      - dashboard
-  /api/admin/users:
+  /api/v1/admin/users:
     get:
       description: Get all users
+      parameters:
+      - description: Bearer token
+        in: header
+        name: Authorization
+        required: true
+        type: string
       produces:
       - application/json
       responses:
@@ -325,7 +394,7 @@ paths:
       tags:
       - admin
       - users
-  /api/admin/users/{id}:
+  /api/v1/admin/users/{id}:
     delete:
       description: Soft delete a user by ID
       parameters:
@@ -334,6 +403,11 @@ paths:
         name: id
         required: true
         type: integer
+      - description: Bearer token
+        in: header
+        name: Authorization
+        required: true
+        type: string
       produces:
       - application/json
       responses:
@@ -361,6 +435,11 @@ paths:
         name: id
         required: true
         type: integer
+      - description: Bearer token
+        in: header
+        name: Authorization
+        required: true
+        type: string
       produces:
       - application/json
       responses:
@@ -394,6 +473,11 @@ paths:
         required: true
         schema:
           type: object
+      - description: Bearer token
+        in: header
+        name: Authorization
+        required: true
+        type: string
       produces:
       - application/json
       responses:
@@ -417,7 +501,7 @@ paths:
       tags:
       - admin
       - users
-  /api/admin/users/{id}/activate:
+  /api/v1/admin/users/{id}/activate:
     put:
       description: Activate a user by ID
       parameters:
@@ -426,6 +510,11 @@ paths:
         name: id
         required: true
         type: integer
+      - description: Bearer token
+        in: header
+        name: Authorization
+        required: true
+        type: string
       produces:
       - application/json
       responses:
@@ -445,7 +534,7 @@ paths:
       tags:
       - admin
       - users
-  /api/admin/users/{id}/suspend:
+  /api/v1/admin/users/{id}/suspend:
     put:
       description: Suspend a user by ID
       parameters:
@@ -454,6 +543,11 @@ paths:
         name: id
         required: true
         type: integer
+      - description: Bearer token
+        in: header
+        name: Authorization
+        required: true
+        type: string
       produces:
       - application/json
       responses:
@@ -473,4 +567,76 @@ paths:
       tags:
       - admin
       - users
+  /api/v1/auth/me:
+    get:
+      description: Returns information about the authenticated user
+      parameters:
+      - description: Bearer token
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.UserSwagger'
+        "401":
+          description: Unauthorized
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Current user
+      tags:
+      - auth
+  /api/v1/upload:
+    post:
+      consumes:
+      - multipart/form-data
+      description: 'Upload a file to the server. Allowed types: .png, .jpg, .jpeg,
+        .webp, .pdf, .docx'
+      parameters:
+      - description: File to upload
+        in: formData
+        name: file
+        required: true
+        type: file
+      - description: Bearer token in format 'Bearer <token>'
+        in: header
+        name: Authorization
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Upload a file
+      tags:
+      - Admin
+securityDefinitions:
+  BearerAuth:
+    in: header
+    name: Authorization
+    type: apiKey
 swagger: "2.0"

@@ -1,3 +1,6 @@
+// @securityDefinitions.apikey BearerAuth
+// @in header
+// @name Authorization
 package main
 
 import (
@@ -51,6 +54,8 @@ func main() {
 		router.Get("/swagger/*", httpSwagger.WrapHandler)
 		url = fmt.Sprintf("http://localhost%s", listenAddr)
 	}
+
+	router.Handle("/uploads/*", http.StripPrefix("/uploads/", http.FileServer(http.Dir("public/uploads"))))
 
 	fmt.Printf("application running in %s at %s\n", kit.Env(), url)
 

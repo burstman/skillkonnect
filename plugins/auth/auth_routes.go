@@ -48,7 +48,7 @@ func InitializeRoutes(router chi.Router) {
 	webAuthConfig := UnifiedAuthConfig{
 		WebAuthFunc: webUIAuthFuncAdapter,
 		APIAuthFunc: apiAuthFuncAdapter,
-		LoginURL:    "/web/admin/login",
+		LoginURL:    "",
 	}
 
 	// Public Web UI login
@@ -76,58 +76,71 @@ func InitializeRoutes(router chi.Router) {
 		LoginURL:    "", // no HTML redirects for API
 	}
 
-	// Public API login (NO AUTH) - in its own group
-	router.Group(func(r chi.Router) {
-		r.Post("/api/admin/login", kit.Handler(HandleApiLoginCreate))
-	})
+	// Versioned API routes under /api/v1
+	router.Route("/api/v1", func(v1 chi.Router) {
+		// Public API login (NO AUTH)
+		v1.Post("/admin/login", kit.Handler(HandleApiLoginCreate))
 
-	// Protected API routes that require authentication (any user)
-	router.Group(func(api chi.Router) {
-		api.Use(WithUnifiedAuth(apiAuthConfig, true))
-		api.Get("/api/auth/me", kit.Handler(HandleApiAuthMe))
-	})
-
-	// Protected API routes
-	router.Group(func(api chi.Router) {
-		api.Use(WithUnifiedAuth(apiAuthConfig, true))
-		api.Use(RequireAdminAPI)
-
-		api.Delete("/api/admin/logout", kit.Handler(HandleApiLoginDelete))
-
-		// ADMIN API
-		api.Route("/api/admin", func(r chi.Router) {
-
-			// USERS
-			r.Route("/users", func(r chi.Router) {
-				r.Get("/", kit.Handler(handlers.ApiAdminListUsers))
-				r.Get("/{id}", kit.Handler(handlers.AdminGetUser))
-				r.Put("/{id}/suspend", kit.Handler(handlers.AdminSuspendUser))
-				r.Put("/{id}/activate", kit.Handler(handlers.AdminActivateUser))
-				r.Put("/{id}", kit.Handler(handlers.AdminUpdateUser))
-				r.Delete("/{id}", kit.Handler(handlers.AdminDeleteUser))
-			})
-
-			// CATEGORIES
-			r.Route("/categories", func(r chi.Router) {
-				r.Get("/", kit.Handler(handlers.AdminListCategories))
-				r.Post("/", kit.Handler(handlers.AdminCreateCategory))
-				r.Delete("/{id}", kit.Handler(handlers.AdminDeleteCategory))
-				r.Put("/{id}", kit.Handler(handlers.AdminUpdateCategory))
-			})
-
-			// SKILLS
-			r.Route("/skills", func(r chi.Router) {
-				r.Get("/", kit.Handler(handlers.AdminListSkills))
-				r.Post("/", kit.Handler(handlers.AdminCreateSkill))
-				r.Put("/{id}", kit.Handler(handlers.AdminUpdateSkill))
-				r.Delete("/{id}", kit.Handler(handlers.AdminDeleteSkill))
-			})
-
-			r.Route("/status", func(r chi.Router) {
-				r.Get("/dashboard", kit.Handler(handlers.AdminDashboardStats))
-
-			})
-
+		// Authenticated routes (any logged-in user)
+		v1.Group(func(api chi.Router) {
+			api.Use(WithUnifiedAuth(apiAuthConfig, true))
+			api.Get("/auth/me", kit.Handler(HandleApiAuthMe))
 		})
+
+		// Protected admin routes
+		v1.Group(func(api chi.Router) {
+			api.Use(WithUnifiedAuth(apiAuthConfig, true))
+			api.Use(RequireAdminAPI)
+
+			api.Delete("/admin/logout", kit.Handler(HandleApiLoginDelete))
+
+			api.Route("/admin", func(r chi.Router) {
+				// USERS
+				r.Route("/users", func(r chi.Router) {
+					r.Get("/", kit.Handler(handlers.ApiAdminListUsers))
+					r.Get("/{id}", kit.Handler(handlers.AdminGetUser))
+					r.Put("/{id}/suspend", kit.Handler(handlers.AdminSuspendUser))
+					r.Put("/{id}/activate", kit.Handler(handlers.AdminActivateUser))
+					r.Put("/{id}", kit.Handler(handlers.AdminUpdateUser))
+					r.Delete("/{id}", kit.Handler(handlers.AdminDeleteUser))
+				})
+
+				// CATEGORIES
+				r.Route("/categories", func(r chi.Router) {
+					r.Get("/", kit.Handler(handlers.AdminListCategories))
+					r.Post("/", kit.Handler(handlers.AdminCreateCategory))
+					r.Delete("/{id}", kit.Handler(handlers.AdminDeleteCategory))
+					r.Put("/{id}", kit.Handler(handlers.AdminUpdateCategory))
+				})
+
+				// SKILLS
+				r.Route("/skills", func(r chi.Router) {
+					r.Get("/", kit.Handler(handlers.AdminListSkills))
+					r.Post("/", kit.Handler(handlers.AdminCreateSkill))
+					r.Put("/{id}", kit.Handler(handlers.AdminUpdateSkill))
+					r.Delete("/{id}", kit.Handler(handlers.AdminDeleteSkill))
+				})
+
+				// STATUS
+				r.Route("/status", func(r chi.Router) {
+					r.Get("/dashboard", kit.Handler(handlers.AdminDashboardStats))
+				})
+			})
+		})
+
+		// Move the `/upload` route directly under `/api/v1` to avoid double prefix
+		v1.Post("/upload", kit.Handler(handlers.AdminUploadFile))
 	})
 }
+
+// @Summary Upload a file
+// @Description Upload a file to the server. Allowed types: .png, .jpg, .jpeg, .webp, .pdf, .docx
+// @Tags Admin
+// @Accept multipart/form-data
+// @Produce json
+// @Param file formData file true "File to upload"
+// @Success 200 {object} map[string]string "{\"filename\":\"example.png\",\"url\":\"/uploads/example.png\"}"
+// @Failure 400 {object} map[string]string "{\"error\":\"invalid_form\"}"
+// @Failure 500 {object} map[string]string "{\"error\":\"file_save_error\"}"
+// @Security BearerAuth
+// @Router /api/v1/upload [post]

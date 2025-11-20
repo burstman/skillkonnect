@@ -18,7 +18,7 @@ import (
 // @Produce json
 // @Success 200 {array} models.CategorySwagger
 // @Failure 500 {object} map[string]string
-// @Router /api/admin/categories [get]
+// @Router /api/v1/admin/categories [get]
 func AdminListCategories(kit *kit.Kit) error {
 	var categories []models.Category
 
@@ -39,7 +39,7 @@ func AdminListCategories(kit *kit.Kit) error {
 // @Param category body object true "Category payload"
 // @Success 201 {object} models.CategorySwagger
 // @Failure 400 {object} map[string]string
-// @Router /api/admin/categories [post]
+// @Router /api/v1/admin/categories [post]
 func AdminCreateCategory(kit *kit.Kit) error {
 	var input struct {
 		Name        string `json:"name"`
@@ -79,7 +79,7 @@ func AdminCreateCategory(kit *kit.Kit) error {
 // @Produce json
 // @Success 200 {object} map[string]string
 // @Failure 400 {object} map[string]string
-// @Router /api/admin/categories/{id} [delete]
+// @Router /api/v1/admin/categories/{id} [delete]
 func AdminDeleteCategory(kit *kit.Kit) error {
 	idStr := chi.URLParam(kit.Request, "id")
 	id, err := strconv.Atoi(idStr)
@@ -109,7 +109,7 @@ func AdminDeleteCategory(kit *kit.Kit) error {
 // @Param category body object true "Category update payload"
 // @Success 200 {object} models.CategorySwagger
 // @Failure 400 {object} map[string]string
-// @Router /api/admin/categories/{id} [put]
+// @Router /api/v1/admin/categories/{id} [put]
 func AdminUpdateCategory(kit *kit.Kit) error {
 	idStr := chi.URLParam(kit.Request, "id")
 	id, err := strconv.Atoi(idStr)
