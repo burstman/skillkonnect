@@ -9,6 +9,8 @@ import (
 	"net/http"
 	"os"
 	"skillKonnect/app"
+	"skillKonnect/app/db"
+	"skillKonnect/app/models"
 	_ "skillKonnect/docs"
 	"skillKonnect/public"
 
@@ -16,10 +18,27 @@ import (
 	"github.com/go-chi/chi/v5"
 	"github.com/joho/godotenv"
 	httpSwagger "github.com/swaggo/http-swagger"
+	// Additional imports for db and models
+	// "skillKonnect/app/db"
+	// "skillKonnect/app/models"
 )
 
 func main() {
 	kit.Setup()
+	// --- AUTOMATIC DB MIGRATION ---
+	// Run GORM AutoMigrate for all main models before starting server
+	dbConn := db.Get()
+	err := dbConn.AutoMigrate(
+		&models.User{},
+		&models.Skill{},
+		&models.Category{},
+		&models.Session{},
+		&models.WorkerProfile{},
+	)
+	if err != nil {
+		log.Fatalf("AutoMigrate failed: %v", err)
+	}
+
 	router := chi.NewMux()
 
 	app.InitializeMiddleware(router)
@@ -31,25 +50,16 @@ func main() {
 	}
 
 	kit.UseErrorHandler(app.ErrorHandler)
-	// Try to set Chi's NotFound handler on the concrete mux if available.
-	// This avoids registering a wildcard route which can conflict with
-	// other route registrations and cause method-not-allowed (405) errors.
-	// Use the router's NotFound setter (method) to register the handler.
-	// Using a wildcard route with HandleFunc can interfere with method
-	// resolution and produce 405 responses, so prefer the explicit NotFound
-	// setter when available.
 	router.NotFound(kit.Handler(app.NotFoundHandler))
 
 	app.InitializeRoutes(router)
 	app.RegisterEvents()
-	// Serve Swagger UI only in development
 	if kit.IsDevelopment() {
 		router.Get("/swagger/*", httpSwagger.WrapHandler)
 	}
 
 	listenAddr := os.Getenv("HTTP_LISTEN_ADDR")
-	// In development link the full Templ proxy url.
-	url := "http://localhost:7331"
+	url := "http://localhost:8080"
 	if kit.IsProduction() {
 		router.Get("/swagger/*", httpSwagger.WrapHandler)
 		url = fmt.Sprintf("http://localhost%s", listenAddr)
@@ -78,7 +88,13 @@ func disableCache(next http.Handler) http.Handler {
 }
 
 func init() {
-	if err := godotenv.Load(); err != nil {
-		log.Fatal(err)
+	// Optionally load environment variables from a .env file if it exists.
+	// Missing .env is not fatal; runtime variables can be provided via Docker or the host env.
+	if info, statErr := os.Stat(".env"); statErr == nil && !info.IsDir() {
+		if err := godotenv.Load(); err != nil {
+			log.Printf("warning: could not load .env: %v", err)
+		}
+	} else if statErr != nil && !os.IsNotExist(statErr) {
+		log.Printf("warning: could not stat .env: %v", statErr)
 	}
 }

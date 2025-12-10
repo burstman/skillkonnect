@@ -25,7 +25,7 @@ type ProfileFormValues struct {
 func HandleProfileShow(kit *kit.Kit) error {
 
 	// Read authentication from unified middleware
-	payload, ok := kit.Request.Context().Value(AuthContextKey{}).(AuthPayload)
+	payload, ok := kit.Request.Context().Value(models.AuthContextKey{}).(models.AuthPayload)
 	if !ok || !payload.Authenticated || payload.User == nil {
 		return kit.Redirect(http.StatusSeeOther, "/web/admin/login")
 	}
@@ -49,7 +49,7 @@ func HandleProfileUpdate(kit *kit.Kit) error {
 		return kit.Render(ProfileForm(values, errors))
 	}
 
-	payload, ok := kit.Request.Context().Value(AuthContextKey{}).(AuthPayload)
+	payload, ok := kit.Request.Context().Value(models.AuthContextKey{}).(models.AuthPayload)
 	if !ok || !payload.Authenticated || payload.User == nil {
 		return kit.Redirect(http.StatusSeeOther, "/web/admin/login")
 	}

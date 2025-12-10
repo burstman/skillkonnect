@@ -4,6 +4,9 @@ import (
 	"github.com/anthdm/superkit/kit"
 )
 
+// AuthContextKey is used to store auth payload in request context
+type AuthContextKey struct{}
+
 // AuthPayload represents an user that might be authenticated.
 type AuthPayload struct {
 	Authenticated bool

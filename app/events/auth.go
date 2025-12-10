@@ -1,10 +1,10 @@
 package events
 
 import (
-	"skillKonnect/plugins/auth"
 	"context"
 	"encoding/json"
 	"fmt"
+	"skillKonnect/plugins/auth"
 )
 
 // Event handlers

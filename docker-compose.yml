@@ -1,0 +1,40 @@
+services:
+  api:
+    build: .
+    image: skillkonnect:latest
+    container_name: skillkonnect-api
+    ports:
+      - "8080:8080"
+    environment:
+      # Use sqlite db file inside the /data volume
+      - SUPERKIT_ENV=production
+      - SUPERKIT_SECRET=b54e4077afbcaf353d509e46a440cf43fdfe73f08f8d097b66bae7e26140e20a
+      - HTTP_LISTEN_ADDR=:8080
+      - DB_DRIVER=sqlite3
+      - DB_NAME=/data/app_db
+    volumes:
+      - app_data:/data
+      - ./public/uploads:/app/public/uploads
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 10s
+
+  seed:
+    image: golang:1.24-bullseye
+    working_dir: /src
+    volumes:
+      - .:/src
+      - app_data:/data
+    environment:
+      - DB_DRIVER=sqlite3
+      - DB_NAME=/data/app_db
+    entrypoint: ["go", "run", "cmd/scripts/seed/main.go"]
+    profiles: ["seed"]
+    # Run manually with: docker compose run --rm --profile seed seed
+
+volumes:
+  app_data:

@@ -10,13 +10,6 @@ import (
 	"github.com/anthdm/superkit/kit"
 )
 
-type AuthContextKey struct{}
-
-type AuthPayload struct {
-	Authenticated bool
-	User          *models.User
-}
-
 // Unified config for API + Web UI
 type UnifiedAuthConfig struct {
 	WebAuthFunc func(*kit.Kit) (*models.User, error)
@@ -72,7 +65,7 @@ func WithUnifiedAuth(cfg UnifiedAuthConfig, strict bool) func(http.Handler) http
 			}
 
 			// Inject into context
-			ctx := context.WithValue(r.Context(), AuthContextKey{}, AuthPayload{
+			ctx := context.WithValue(r.Context(), models.AuthContextKey{}, models.AuthPayload{
 				Authenticated: auth,
 				User:          user,
 			})
@@ -82,4 +75,38 @@ func WithUnifiedAuth(cfg UnifiedAuthConfig, strict bool) func(http.Handler) http
 	}
 }
 
+// RequireRoleAPI is a middleware that checks if the user has a specific role (for API routes)
+func RequireRoleAPI(requiredRole string) func(http.Handler) http.Handler {
+	return func(next http.Handler) http.Handler {
+		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			kit := &kit.Kit{Response: w, Request: r}
 
+			// Get auth from context
+			authVal := r.Context().Value(models.AuthContextKey{})
+			if authVal == nil {
+				_ = kit.JSON(http.StatusUnauthorized, map[string]string{
+					"error": "unauthorized",
+				})
+				return
+			}
+
+			auth, ok := authVal.(models.AuthPayload)
+			if !ok || !auth.Authenticated || auth.User == nil {
+				_ = kit.JSON(http.StatusUnauthorized, map[string]string{
+					"error": "unauthorized",
+				})
+				return
+			}
+
+			// Check role
+			if auth.User.Role != requiredRole {
+				_ = kit.JSON(http.StatusForbidden, map[string]string{
+					"error": "forbidden - requires " + requiredRole + " role",
+				})
+				return
+			}
+
+			next.ServeHTTP(w, r)
+		})
+	}
+}

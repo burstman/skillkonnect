@@ -592,6 +592,107 @@ paths:
       summary: Current user
       tags:
       - auth
+  /api/v1/client/dashboard:
+    get:
+      description: Get client dashboard statistics
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Client dashboard stats
+      tags:
+      - client
+      - dashboard
+  /api/v1/client/login:
+    post:
+      consumes:
+      - application/json
+      description: Login as client with email and password; returns token and user
+        information
+      parameters:
+      - description: Login payload with email and password
+        in: body
+        name: credentials
+        required: true
+        schema:
+          type: object
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "401":
+          description: Unauthorized
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Client login
+      tags:
+      - auth
+      - public
+  /api/v1/client/workers:
+    get:
+      description: Get list of workers sorted by distance for clients
+      parameters:
+      - default: 1
+        description: Page number
+        in: query
+        name: page
+        type: integer
+      - default: 10
+        description: Items per page
+        in: query
+        name: limit
+        type: integer
+      - description: Filter by profession/category (e.g., Plumber, Electrician, Carpenter)
+        in: query
+        name: category
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - BearerAuth: []
+      summary: List workers by distance
+      tags:
+      - client
+      - workers
+  /api/v1/health:
+    get:
+      description: Check if the server is running
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Health check
+      tags:
+      - health
   /api/v1/upload:
     post:
       consumes:
@@ -634,6 +735,40 @@ paths:
       summary: Upload a file
       tags:
       - Admin
+  /api/v1/user/dashboard:
+    get:
+      description: Get user dashboard statistics
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - BearerAuth: []
+      summary: User dashboard stats
+      tags:
+      - user
+      - dashboard
+  /api/v1/worker/dashboard:
+    get:
+      description: Get worker dashboard statistics
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Worker dashboard stats
+      tags:
+      - worker
+      - dashboard
 securityDefinitions:
   BearerAuth:
     in: header

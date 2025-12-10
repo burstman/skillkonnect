@@ -1,0 +1,14 @@
+# Ignore build artifacts and local files
+/tmp/
+bin/
+.tmp/
+.DS_Store
+node_modules
+.git
+
+# IDE files
+.vscode
+.idea
+
+# Generated templ files
+public/_templ*

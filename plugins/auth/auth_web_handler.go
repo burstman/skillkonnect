@@ -260,7 +260,7 @@ func RequireWebAdmin(next http.Handler) http.Handler {
 func RequireAdminAPI(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 
-		payload, ok := r.Context().Value(AuthContextKey{}).(AuthPayload)
+		payload, ok := r.Context().Value(models.AuthContextKey{}).(models.AuthPayload)
 		if !ok || !payload.Authenticated {
 			http.Error(w, "unauthorized", http.StatusUnauthorized)
 			return

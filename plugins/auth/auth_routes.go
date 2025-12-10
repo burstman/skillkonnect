@@ -78,13 +78,46 @@ func InitializeRoutes(router chi.Router) {
 
 	// Versioned API routes under /api/v1
 	router.Route("/api/v1", func(v1 chi.Router) {
+		// Health check endpoint (no auth required)
+		v1.Get("/health", kit.Handler(HandleHealthCheck))
+
 		// Public API login (NO AUTH)
 		v1.Post("/admin/login", kit.Handler(HandleApiLoginCreate))
+		v1.Post("/client/login", kit.Handler(HandleClientLoginCreate))
 
 		// Authenticated routes (any logged-in user)
 		v1.Group(func(api chi.Router) {
 			api.Use(WithUnifiedAuth(apiAuthConfig, true))
 			api.Get("/auth/me", kit.Handler(HandleApiAuthMe))
+		})
+
+		// User-specific routes (for authenticated users)
+		v1.Group(func(api chi.Router) {
+			api.Use(WithUnifiedAuth(apiAuthConfig, true))
+			api.Route("/user", func(r chi.Router) {
+				r.Get("/dashboard", kit.Handler(handlers.UserDashboardStats))
+			})
+		})
+
+		// Client-specific routes (for authenticated clients)
+		v1.Group(func(api chi.Router) {
+			api.Use(WithUnifiedAuth(apiAuthConfig, true))
+			api.Use(RequireRoleAPI("client"))
+			api.Route("/client", func(r chi.Router) {
+				r.Get("/dashboard", kit.Handler(handlers.ClientDashboardStats))
+				r.Get("/workers", kit.Handler(handlers.ClientListWorkers))
+				// Add more client endpoints here
+			})
+		})
+
+		// Worker-specific routes (for authenticated workers)
+		v1.Group(func(api chi.Router) {
+			api.Use(WithUnifiedAuth(apiAuthConfig, true))
+			api.Use(RequireRoleAPI("worker"))
+			api.Route("/worker", func(r chi.Router) {
+				r.Get("/dashboard", kit.Handler(handlers.WorkerDashboardStats))
+				// Add more worker endpoints here
+			})
 		})
 
 		// Protected admin routes

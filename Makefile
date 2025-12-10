@@ -27,9 +27,10 @@ endif
 
 # run templ generation in watch mode to detect all .templ files and 
 # re-create _templ.txt files on change, then send reload event to browser. 
-# Default url: http://localhost:7331
+# Default dev proxy URL: http://localhost:8080
+# Run templ with proxy bound to port 8080 so the dev UI is available at http://localhost:8080
 templ:
-	@templ generate --watch --proxy="http://localhost$(HTTP_LISTEN_ADDR)" --open-browser=false
+	@templ generate --watch --proxy="http://localhost$(HTTP_LISTEN_ADDR)" --proxyport=8080 --open-browser=false
 
 # run air to detect any go file changes to re-build and re-run the server.
 server:
@@ -88,3 +89,6 @@ db-mig-create:
 
 db-seed:
 	@go run cmd/scripts/seed/main.go
+
+db-migrate:
+	@go run cmd/app/main.go migrate

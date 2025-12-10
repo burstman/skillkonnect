@@ -4,8 +4,9 @@ import (
 	"log"
 	"os"
 
-	"github.com/anthdm/superkit/db"
+	skdb "github.com/anthdm/superkit/db"
 
+	// CGO-backed sqlite driver (stable path)
 	_ "github.com/mattn/go-sqlite3"
 
 	"gorm.io/driver/sqlite"
@@ -24,17 +25,14 @@ func Get() *gorm.DB {
 func init() {
 	// Create a default *sql.DB exposed by the superkit/db package
 	// based on the given configuration.
-	config := db.Config{
+	config := skdb.Config{
 		Driver:   os.Getenv("DB_DRIVER"),
 		Name:     os.Getenv("DB_NAME"),
 		Password: os.Getenv("DB_PASSWORD"),
 		User:     os.Getenv("DB_USER"),
 		Host:     os.Getenv("DB_HOST"),
 	}
-	dbinst, err := db.NewSQL(config)
-	if err != nil {
-		log.Fatal(err)
-	}
+	var err error
 	// Based on the driver create the corresponding DB instance.
 	// By default, the SuperKit boilerplate comes with a pre-configured
 	// ORM called Gorm. https://gorm.io.
@@ -45,11 +43,10 @@ func init() {
 	// - SQLC -> https://github.com/sqlc-dev/sqlc
 	// - gojet -> https://github.com/go-jet/jet
 	switch config.Driver {
-	case db.DriverSqlite3:
-		dbInstance, err = gorm.Open(sqlite.New(sqlite.Config{
-			Conn: dbinst,
-		}))
-	case db.DriverMysql:
+	case skdb.DriverSqlite3:
+		// Use GORM's sqlite dialector directly with DSN (CGO-backed by mattn driver)
+		dbInstance, err = gorm.Open(sqlite.Open(config.Name))
+	case skdb.DriverMysql:
 		// ...
 	default:
 		log.Fatal("invalid driver:", config.Driver)
